@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLayoutStore } from '../../store/layoutStore';
 import { useFilterStore } from '../../store/filterStore';
 import type { ScoredTable } from '../../types/recommendation';
-import { scoreTables } from '../../utils/scoringUtils';
+import * as reservationApi from '../../api/reservationApi';
 import RecommendedTables from './RecommendedTables';
 import MealSuggestions from './MealSuggestions';
 
@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function BookingDrawer({ open, onClose, initialTableId }: Props) {
-  const { floorPlan, reservations, selectTable, setRecommended } = useLayoutStore();
+  const { floorPlan, selectTable, setRecommended } = useLayoutStore();
   const { date, areaId } = useFilterStore();
 
   const [guestName, setGuestName] = useState('');
@@ -25,34 +25,32 @@ export default function BookingDrawer({ open, onClose, initialTableId }: Props) 
   const [scored, setScored] = useState<ScoredTable[]>([]);
   const [confirmed, setConfirmed] = useState(false);
   const [notes, setNotes] = useState('');
+  const [bookingError, setBookingError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setConfirmed(false);
       setScored([]);
       setSelectedTableId(initialTableId);
+      setBookingError(null);
     }
   }, [open, initialTableId]);
 
-  const handleFindTables = () => {
-    const startsAt = new Date(`${bookDate}T${bookTime}:00`);
-    const endsAt = new Date(startsAt.getTime() + 2.5 * 60 * 60 * 1000);
-
-    // Filter out tables with overlapping reservations
-    const occupiedIds = new Set(
-      reservations
-        .filter((r) => {
-          const rStart = new Date(r.startsAt);
-          const rEnd = new Date(r.endsAt);
-          return rStart < endsAt && rEnd > startsAt;
-        })
-        .flatMap((r) => r.tableIds)
-    );
-
-    const available = floorPlan.tables.filter((t) => !occupiedIds.has(t.id));
-    const results = scoreTables(available, partySize, preferredAreaId !== '' ? preferredAreaId : undefined);
-    setScored(results);
-    setRecommended(results.map((s) => s.table.id));
+  const handleFindTables = async () => {
+    try {
+      const startsAt = `${bookDate}T${bookTime}:00`;
+      const results = await reservationApi.recommend({
+        partySize,
+        preferredAreaId: preferredAreaId !== '' ? preferredAreaId : undefined,
+        startsAt,
+      });
+      setScored(results);
+      setRecommended(results.map((s) => s.table.id));
+    } catch {
+      // Keep empty results on error
+      setScored([]);
+      setRecommended([]);
+    }
   };
 
   const handleSelectTable = (tableId: number) => {
@@ -60,12 +58,30 @@ export default function BookingDrawer({ open, onClose, initialTableId }: Props) 
     selectTable(tableId);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!selectedTableId || !guestName.trim()) return;
-    // TODO: POST /api/reservations
-    setConfirmed(true);
-    setRecommended([]);
-    selectTable(null);
+    try {
+      await reservationApi.createReservation({
+        tableIds: [selectedTableId],
+        guestName: guestName.trim(),
+        partySize,
+        startsAt: `${bookDate}T${bookTime}:00`,
+        notes: notes.trim() || undefined,
+      });
+      // Refresh reservations in the store after successful booking
+      const freshReservations = await reservationApi.getReservations({});
+      useLayoutStore.getState().setReservations(freshReservations);
+      setConfirmed(true);
+      setRecommended([]);
+      selectTable(null);
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number; data?: { message?: string } } };
+      if (axiosErr?.response?.status === 409) {
+        setBookingError('This table is already booked for that time. Please choose another.');
+      } else {
+        setBookingError('Booking failed. Please try again.');
+      }
+    }
   };
 
   const handleClose = () => {
@@ -224,6 +240,9 @@ export default function BookingDrawer({ open, onClose, initialTableId }: Props) 
             </button>
             {!selectedTableId && scored.length > 0 && (
               <p className="text-xs text-slate-400 text-center mt-2">Select a table above to confirm</p>
+            )}
+            {bookingError && (
+              <p className="text-xs text-red-500 text-center mt-2">{bookingError}</p>
             )}
           </div>
         )}

@@ -1,6 +1,6 @@
 export interface Reservation {
   id: number;
-  tableId: number;
+  tableIds: number[];
   guestName: string;
   partySize: number;
   startsAt: string;   // ISO 8601
@@ -9,12 +9,13 @@ export interface Reservation {
   createdAt: string;
 }
 
-export interface ReservationRequest {
-  tableId: number;
+export interface CreateReservationRequest {
+  tableIds: number[];
   guestName: string;
   partySize: number;
-  startsAt: string;
+  startsAt: string;   // ISO 8601
   notes?: string;
+  durationHours?: number;
 }
 
 export interface ReservationFilter {

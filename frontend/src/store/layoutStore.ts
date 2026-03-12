@@ -31,10 +31,10 @@ const MOCK_FLOOR_PLAN: FloorPlan = {
 };
 
 export const MOCK_RESERVATIONS: Reservation[] = [
-  { id: 1, tableId: 1, guestName: 'Smith Family', partySize: 3, startsAt: '2026-03-11T12:00:00Z', endsAt: '2026-03-11T14:30:00Z', notes: null, createdAt: '2026-03-10T09:00:00Z' },
-  { id: 2, tableId: 5, guestName: 'Johnson Party', partySize: 7, startsAt: '2026-03-11T13:00:00Z', endsAt: '2026-03-11T15:30:00Z', notes: 'Birthday celebration', createdAt: '2026-03-10T10:00:00Z' },
-  { id: 3, tableId: 9, guestName: 'Martinez', partySize: 2, startsAt: '2026-03-11T19:00:00Z', endsAt: '2026-03-11T21:30:00Z', notes: 'Anniversary dinner', createdAt: '2026-03-10T11:00:00Z' },
-  { id: 4, tableId: 11, guestName: 'Chen Group', partySize: 4, startsAt: '2026-03-11T19:30:00Z', endsAt: '2026-03-11T22:00:00Z', notes: null, createdAt: '2026-03-10T12:00:00Z' },
+  { id: 1, tableIds: [1], guestName: 'Smith Family', partySize: 3, startsAt: '2026-03-11T12:00:00Z', endsAt: '2026-03-11T14:30:00Z', notes: null, createdAt: '2026-03-10T09:00:00Z' },
+  { id: 2, tableIds: [5], guestName: 'Johnson Party', partySize: 7, startsAt: '2026-03-11T13:00:00Z', endsAt: '2026-03-11T15:30:00Z', notes: 'Birthday celebration', createdAt: '2026-03-10T10:00:00Z' },
+  { id: 3, tableIds: [9], guestName: 'Martinez', partySize: 2, startsAt: '2026-03-11T19:00:00Z', endsAt: '2026-03-11T21:30:00Z', notes: 'Anniversary dinner', createdAt: '2026-03-10T11:00:00Z' },
+  { id: 4, tableIds: [11], guestName: 'Chen Group', partySize: 4, startsAt: '2026-03-11T19:30:00Z', endsAt: '2026-03-11T22:00:00Z', notes: null, createdAt: '2026-03-10T12:00:00Z' },
 ];
 
 interface LayoutState {
@@ -159,7 +159,7 @@ export const useLayoutStore = create<LayoutState>((set, get) => ({
       }
 
       const hasOverlap = reservations.some(
-        (r) => r.tableId === table.id && new Date(r.endsAt) > now && new Date(r.startsAt) <= now
+        (r) => r.tableIds.includes(table.id) && new Date(r.endsAt) > now && new Date(r.startsAt) <= now
       );
 
       if (hasOverlap) {

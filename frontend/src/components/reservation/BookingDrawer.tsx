@@ -46,7 +46,7 @@ export default function BookingDrawer({ open, onClose, initialTableId }: Props) 
           const rEnd = new Date(r.endsAt);
           return rStart < endsAt && rEnd > startsAt;
         })
-        .map((r) => r.tableId)
+        .flatMap((r) => r.tableIds)
     );
 
     const available = floorPlan.tables.filter((t) => !occupiedIds.has(t.id));

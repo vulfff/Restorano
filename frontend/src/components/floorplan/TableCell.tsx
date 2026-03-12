@@ -48,7 +48,7 @@ export default function TableCell({ table, status, reservations, recommendRank, 
 
       {showTooltip && (
         <TableTooltip
-          reservations={reservations.filter((r) => r.tableId === table.id)}
+          reservations={reservations.filter((r) => r.tableIds.includes(table.id))}
           capacity={table.capacity}
           label={table.label}
         />

@@ -3,6 +3,7 @@ import type { Reservation, ReservationFilter, CreateReservationRequest } from '.
 import type { ScoredTable } from '../types/recommendation';
 import type { RecommendRequest } from '../types/recommendation';
 
+// Backend filters by date/partySize/areaId only; time-of-day filtering is computed client-side
 export async function getReservations(filters: ReservationFilter): Promise<Reservation[]> {
   const params: Record<string, string | number> = {};
   if (filters.date !== undefined) params.date = filters.date;

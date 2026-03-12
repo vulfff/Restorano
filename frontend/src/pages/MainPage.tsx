@@ -1,13 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Table } from '../types/layout';
 import FloorPlan from '../components/floorplan/FloorPlan';
 import FilterBar from '../components/filters/FilterBar';
 import TableLegend from '../components/floorplan/TableLegend';
 import BookingDrawer from '../components/reservation/BookingDrawer';
+import { useLayoutStore } from '../store/layoutStore';
+import * as layoutApi from '../api/layoutApi';
+import * as reservationApi from '../api/reservationApi';
 
 export default function MainPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [clickedTableId, setClickedTableId] = useState<number | undefined>();
+
+  useEffect(() => {
+    const { setFloorPlan, setReservations } = useLayoutStore.getState();
+    Promise.all([layoutApi.getLayout(), reservationApi.getReservations({})])
+      .then(([fp, reservations]) => {
+        setFloorPlan(fp);
+        setReservations(reservations);
+      })
+      .catch((err) => {
+        console.error('Failed to load floor plan:', err);
+      });
+  }, []);
 
   const handleTableClick = (table: Table) => {
     setClickedTableId(table.id);

@@ -2,6 +2,7 @@
 PLAN.md
 CLAUDE.md
 .claude/
+.worktrees/
 
 # Frontend
 frontend/node_modules/

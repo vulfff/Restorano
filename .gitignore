@@ -1,0 +1,54 @@
+# Agent / internal docs
+PLAN.md
+CLAUDE.md
+.claude/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Backend
+backend/target/
+backend/.mvn/
+backend/*.log
+backend/application.properties
+!backend/application.properties.example
+
+# Environment / secrets
+.env
+.env.local
+*.env
+application-secret.properties
+application-prod.properties
+
+# Database
+*.sql.bak
+pgdata/
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.idea/
+.vscode/settings.json
+*.iml
+*.suo
+*.user
+
+# Logs
+*.log
+logs/
+
+# Java
+*.class
+*.jar
+!*-sources.jar
+hs_err_pid*

@@ -1,0 +1,2 @@
+# Normalize line endings on commit; checkout uses OS default
+* text=auto

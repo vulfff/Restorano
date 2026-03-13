@@ -18,12 +18,16 @@ public class MealDbService {
     }
 
     public List<MealSummary> suggest(String keyword) {
-        MealDbResponse response = webClient.get()
-            .uri("/search.php?s={kw}", keyword)
-            .retrieve()
-            .bodyToMono(MealDbResponse.class)
-            .block();
-        return (response != null && response.meals() != null) ? response.meals() : List.of();
+        try {
+            MealDbResponse response = webClient.get()
+                .uri("/search.php?s={kw}", keyword)
+                .retrieve()
+                .bodyToMono(MealDbResponse.class)
+                .block();
+            return (response != null && response.meals() != null) ? response.meals() : List.of();
+        } catch (Exception e) {
+            return List.of();
+        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

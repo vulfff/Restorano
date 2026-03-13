@@ -11,6 +11,8 @@ import com.restorano.backend.layout.repositories.FloorPlanRepository;
 import com.restorano.backend.reservation.repositories.ReservationRepository;
 import com.restorano.backend.util.exceptions.ConflictException;
 import com.restorano.backend.util.exceptions.NotFoundException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,9 @@ public class FloorPlanService {
 
     private static final long FLOOR_PLAN_ID = 1L;
 
+    @PersistenceContext
+    private EntityManager em;
+
     private final FloorPlanRepository floorPlanRepository;
     private final ReservationRepository reservationRepository;
 
@@ -32,50 +37,69 @@ public class FloorPlanService {
         this.reservationRepository = reservationRepository;
     }
 
+    @Transactional(readOnly = true)
     public FloorPlanDto getLayout() {
-        FloorPlan fp = floorPlanRepository.findWithAllById(FLOOR_PLAN_ID)
+        FloorPlan fp = floorPlanRepository.findById(FLOOR_PLAN_ID)
             .orElseThrow(() -> new NotFoundException("Floor plan not found"));
         return toDto(fp);
     }
 
     @Transactional
     public FloorPlanDto saveLayout(SaveLayoutRequest req) {
-        FloorPlan fp = floorPlanRepository.findWithAllById(FLOOR_PLAN_ID)
+        FloorPlan fp = floorPlanRepository.findById(FLOOR_PLAN_ID)
             .orElseThrow(() -> new NotFoundException("Floor plan not found"));
 
-        // --- Fuse/split safety check ---
         validateFusionChanges(fp, req);
 
-        // --- Update dimensions ---
         fp.setGridCols(req.gridCols());
         fp.setGridRows(req.gridRows());
         fp.setUpdatedAt(Instant.now());
 
-        // --- Replace areas ---
-        fp.getAreas().clear();
         List<AreaDto> areaDtos = req.areas() != null ? req.areas() : List.of();
+        List<TableDto> tableDtos = req.tables() != null ? req.tables() : List.of();
+
+        // --- Upsert areas (update in place, insert new, orphan-remove deleted) ---
+        Map<Long, Area> existingAreaById = fp.getAreas().stream()
+            .filter(a -> a.getId() != null)
+            .collect(Collectors.toMap(Area::getId, a -> a));
+        Set<Long> incomingAreaIds = areaDtos.stream()
+            .filter(dto -> dto.id() != null).map(AreaDto::id).collect(Collectors.toSet());
+        fp.getAreas().removeIf(a -> a.getId() == null || !incomingAreaIds.contains(a.getId()));
+
+        // dtoAreaId → entity: handles both real DB IDs and temp frontend IDs for table wiring
+        Map<Long, Area> dtoAreaIdToEntity = new HashMap<>();
         for (AreaDto dto : areaDtos) {
-            Area area = new Area();
-            area.setFloorPlan(fp);
+            Area area = (dto.id() != null && existingAreaById.containsKey(dto.id()))
+                ? existingAreaById.get(dto.id())
+                : new Area();
             area.setName(dto.name());
             area.setColor(dto.color());
             area.setTopLeftCol(dto.topLeftCol());
             area.setTopLeftRow(dto.topLeftRow());
             area.setBottomRightCol(dto.bottomRightCol());
             area.setBottomRightRow(dto.bottomRightRow());
-            fp.getAreas().add(area);
+            if (area.getId() == null) {
+                area.setFloorPlan(fp);
+                em.persist(area); // IDENTITY strategy fires INSERT immediately; fields must be set first
+                fp.getAreas().add(area);
+            }
+            if (dto.id() != null) dtoAreaIdToEntity.put(dto.id(), area);
         }
+        em.flush(); // assign DB IDs to new areas; same Java instances now have IDs
 
-        // --- Replace tables (two-pass: build entities, then wire FKs) ---
-        fp.getTables().clear();
-        floorPlanRepository.saveAndFlush(fp); // flush so orphan-removed tables are deleted
+        // --- Upsert tables (first pass: fields + area; second pass: parentFused) ---
+        Map<Long, RestaurantTable> existingTableById = fp.getTables().stream()
+            .filter(t -> t.getId() != null)
+            .collect(Collectors.toMap(RestaurantTable::getId, t -> t));
+        Set<Long> incomingTableIds = tableDtos.stream()
+            .filter(dto -> dto.id() != null).map(TableDto::id).collect(Collectors.toSet());
+        fp.getTables().removeIf(t -> t.getId() == null || !incomingTableIds.contains(t.getId()));
 
-        List<TableDto> tableDtos = req.tables() != null ? req.tables() : List.of();
-        // First pass: create entities without parentFused wired
-        List<RestaurantTable> newTables = new ArrayList<>();
+        List<RestaurantTable> upsertedTables = new ArrayList<>();
         for (TableDto dto : tableDtos) {
-            RestaurantTable t = new RestaurantTable();
-            t.setFloorPlan(fp);
+            RestaurantTable t = (dto.id() != null && existingTableById.containsKey(dto.id()))
+                ? existingTableById.get(dto.id())
+                : new RestaurantTable();
             t.setLabel(dto.label());
             t.setCapacity(dto.capacity());
             t.setCol(dto.col());
@@ -83,36 +107,30 @@ public class FloorPlanService {
             t.setWidthCells(dto.widthCells());
             t.setHeightCells(dto.heightCells());
             t.setFused(dto.isFused());
-            // Area: match by position in the saved areas list (areas were flushed above)
-            if (dto.areaId() != null) {
-                fp.getAreas().stream()
-                    .filter(a -> a.getId() != null && a.getId().equals(dto.areaId()))
-                    .findFirst()
-                    // Area id may be a "new" negative id from frontend — match by order fallback handled below
-                    .ifPresent(t::setArea);
+            t.setArea(dto.areaId() != null ? dtoAreaIdToEntity.get(dto.areaId()) : null);
+            if (t.getId() == null) {
+                t.setFloorPlan(fp);
+                em.persist(t); // IDENTITY strategy fires INSERT immediately; fields must be set first
+                fp.getTables().add(t);
             }
-            fp.getTables().add(t);
-            newTables.add(t);
+            upsertedTables.add(t);
         }
-        floorPlanRepository.saveAndFlush(fp); // assign IDs to new entities
+        em.flush(); // assign DB IDs to new tables
 
-        // Second pass: wire parentFused references using the DTO's parentFusedId
-        // After save, match new entities by their position in the list (same order as tableDtos)
         for (int i = 0; i < tableDtos.size(); i++) {
             TableDto dto = tableDtos.get(i);
+            RestaurantTable parent = null;
             if (dto.parentFusedId() != null) {
-                RestaurantTable constituent = newTables.get(i);
-                // Find the fused parent in the new table list by matching the DTO id
                 for (int j = 0; j < tableDtos.size(); j++) {
-                    if (tableDtos.get(j).id() != null &&
-                        tableDtos.get(j).id().equals(dto.parentFusedId())) {
-                        constituent.setParentFused(newTables.get(j));
+                    if (tableDtos.get(j).id() != null && tableDtos.get(j).id().equals(dto.parentFusedId())) {
+                        parent = upsertedTables.get(j);
                         break;
                     }
                 }
             }
+            upsertedTables.get(i).setParentFused(parent);
         }
-        floorPlanRepository.saveAndFlush(fp);
+        em.flush();
 
         return toDto(fp);
     }
@@ -120,7 +138,7 @@ public class FloorPlanService {
     // --- DTO conversion ---
 
     public FloorPlanDto toDto(FloorPlan fp) {
-        List<RestaurantTable> allTables = fp.getTables();
+        Collection<RestaurantTable> allTables = fp.getTables();
         return new FloorPlanDto(
             fp.getId(),
             fp.getGridCols(),
@@ -138,7 +156,7 @@ public class FloorPlanService {
         );
     }
 
-    public TableDto toTableDto(RestaurantTable t, List<RestaurantTable> allTables) {
+    public TableDto toTableDto(RestaurantTable t, Collection<RestaurantTable> allTables) {
         // Build fusedTableIds: tables whose parentFused == this table
         List<Long> fusedIds = null;
         if (t.isFused()) {

@@ -13,11 +13,12 @@ interface Props {
 
 export default function FloorPlan({ onTableClick }: Props) {
   const { floorPlan, reservations, tableStatuses, recommendedTableIds, computeTableStatuses } = useLayoutStore();
-  const { partySize } = useFilterStore();
+  const { partySize, date, time } = useFilterStore();
 
   useEffect(() => {
-    computeTableStatuses(undefined, partySize !== '' ? partySize : undefined);
-  }, [reservations, recommendedTableIds, partySize, computeTableStatuses]);
+    const filterDatetime = date && time ? `${date}T${time}` : undefined;
+    computeTableStatuses(filterDatetime, partySize !== '' ? partySize : undefined);
+  }, [reservations, recommendedTableIds, partySize, date, time, computeTableStatuses]);
 
   const gridWidth = floorPlan.gridCols * CELL_SIZE;
   const gridHeight = floorPlan.gridRows * CELL_SIZE;

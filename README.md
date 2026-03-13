@@ -50,8 +50,9 @@ Restorano/
 ### Full stack (recommended)
 
 ```bash
-docker compose up -d               # start PostgreSQL (port 5434)
-cd backend && ./mvnw spring-boot:run  # start API on :8080
+docker compose up -d --build      # start PostgreSQL + backend API on :8080
+# OR use live-reload (watches backend/src for changes):
+docker compose watch
 
 # Seed admin account (one-time):
 curl -X POST http://localhost:8080/api/auth/signup \
@@ -147,7 +148,7 @@ Top 5 results returned, minimum score 0.1.
 
 **Multi-table reservations** — a single booking can hold multiple tables (`reservation_tables` junction). This handles large-party seating without touching the layout (no time-bound fusion needed).
 
-**Fuse/split safety** — joining tables is blocked if any constituent table has future reservations; splitting is blocked if the fused table has reservations. Staff must cancel or move bookings first.
+**Fuse/split safety** — joining tables is blocked if any constituent table has not-yet-started reservations; splitting is blocked if the fused table has not-yet-started reservations. Ongoing or past reservations do not block layout changes.
 
 **Double-booking prevention** — PostgreSQL `btree_gist` exclusion constraint on `(table_id, tstzrange(starts_at, ends_at))` in `reservation_tables`.
 

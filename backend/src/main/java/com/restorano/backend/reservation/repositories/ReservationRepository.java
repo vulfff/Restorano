@@ -24,7 +24,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("""
         SELECT r FROM Reservation r JOIN r.tables t
         WHERE t.id = :tableId
-          AND r.endsAt > :now
+          AND r.startsAt > :now
         """)
     List<Reservation> findFutureByTableId(@Param("tableId") Long tableId,
                                           @Param("now") Instant now);

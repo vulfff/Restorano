@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Table(schema = "restorano", name = "floor_plan")
@@ -30,8 +30,8 @@ public class FloorPlan {
     private Instant updatedAt = Instant.now();
 
     @OneToMany(mappedBy = "floorPlan", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Area> areas = new ArrayList<>();
+    private Set<Area> areas = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "floorPlan", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RestaurantTable> tables = new ArrayList<>();
+    private Set<RestaurantTable> tables = new LinkedHashSet<>();
 }

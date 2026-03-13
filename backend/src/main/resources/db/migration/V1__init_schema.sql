@@ -52,7 +52,7 @@ CREATE TABLE restorano.reservation (
 
 CREATE TABLE restorano.reservation_tables (
     reservation_id BIGINT NOT NULL REFERENCES restorano.reservation(id)       ON DELETE CASCADE,
-    table_id       BIGINT NOT NULL REFERENCES restorano.restaurant_table(id),
+    table_id       BIGINT NOT NULL REFERENCES restorano.restaurant_table(id)  ON DELETE CASCADE,
     PRIMARY KEY (reservation_id, table_id)
 );
 

@@ -38,7 +38,7 @@ export default function BookingDrawer({ open, onClose, initialTableId }: Props) 
 
   const handleFindTables = async () => {
     try {
-      const startsAt = `${bookDate}T${bookTime}:00`;
+      const startsAt = new Date(`${bookDate}T${bookTime}`).toISOString();
       const results = await reservationApi.recommend({
         partySize,
         preferredAreaId: preferredAreaId !== '' ? preferredAreaId : undefined,
@@ -65,7 +65,7 @@ export default function BookingDrawer({ open, onClose, initialTableId }: Props) 
         tableIds: [selectedTableId],
         guestName: guestName.trim(),
         partySize,
-        startsAt: `${bookDate}T${bookTime}:00`,
+        startsAt: new Date(`${bookDate}T${bookTime}`).toISOString(),
         notes: notes.trim() || undefined,
       });
       // Refresh reservations in the store after successful booking

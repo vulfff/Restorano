@@ -71,6 +71,21 @@ function wouldOverlap(candidate: Area, allAreas: Area[], excludeId?: number): bo
   return allAreas.some((a) => a.id !== excludeId && areasOverlap(candidate, a));
 }
 
+function tablesOverlap(a: Table, b: Table): boolean {
+  return (
+    a.col < b.col + b.widthCells &&
+    a.col + a.widthCells > b.col &&
+    a.row < b.row + b.heightCells &&
+    a.row + a.heightCells > b.row
+  );
+}
+
+function wouldTableOverlap(candidate: Table, allTables: Table[], excludeId?: number): boolean {
+  return allTables.some(
+    (t) => t.id !== excludeId && !t.parentFusedId && tablesOverlap(candidate, t)
+  );
+}
+
 let nextTempId = 1000;
 
 export default function LayoutBuilder() {
@@ -86,7 +101,7 @@ export default function LayoutBuilder() {
   const [defaultCapacity, setDefaultCapacity] = useState(4);
   const [draggingTableId, setDraggingTableId] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState({ col: 0, row: 0 });
-  const [overlapError, setOverlapError] = useState(false);
+  const [overlapError, setOverlapError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -262,8 +277,8 @@ export default function LayoutBuilder() {
 
       // Block creation if it would overlap an existing area
       if (wouldOverlap(newArea, floorPlan.areas)) {
-        setOverlapError(true);
-        setTimeout(() => setOverlapError(false), 2500);
+        setOverlapError('Areas cannot overlap');
+        setTimeout(() => setOverlapError(null), 2500);
         return;
       }
 
@@ -291,6 +306,13 @@ export default function LayoutBuilder() {
         isFused: false,
         fusedTableIds: null,
       };
+
+      if (wouldTableOverlap(newTable, floorPlan.tables)) {
+        setOverlapError('Tables cannot overlap');
+        setTimeout(() => setOverlapError(null), 2500);
+        return;
+      }
+
       addTable(newTable);
       // Auto-select the new table so user can edit label/capacity immediately
       setSelectedTableIds([newTable.id]);
@@ -379,6 +401,17 @@ export default function LayoutBuilder() {
     minRow: Math.min(tableDrag.startRow, tableDrag.endRow),
     maxRow: Math.max(tableDrag.startRow, tableDrag.endRow),
   } : null;
+
+  const tablePreviewInvalid = tablePreviewRect !== null && wouldTableOverlap(
+    {
+      id: -1, label: '', capacity: 0,
+      col: tablePreviewRect.minCol, row: tablePreviewRect.minRow,
+      widthCells: tablePreviewRect.maxCol - tablePreviewRect.minCol + 1,
+      heightCells: tablePreviewRect.maxRow - tablePreviewRect.minRow + 1,
+      areaId: null, isFused: false, fusedTableIds: null,
+    },
+    floorPlan.tables
+  );
 
   const HANDLES: ResizeHandle[] = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
 
@@ -625,7 +658,11 @@ export default function LayoutBuilder() {
           {/* Preview rect while drawing table */}
           {tablePreviewRect && (
             <div
-              className="absolute rounded-lg border-2 border-dashed border-indigo-500 bg-indigo-100/50 pointer-events-none flex items-center justify-center"
+              className={`absolute rounded-lg border-2 border-dashed pointer-events-none flex items-center justify-center ${
+                tablePreviewInvalid
+                  ? 'border-red-400 bg-red-100/50'
+                  : 'border-indigo-500 bg-indigo-100/50'
+              }`}
               style={{
                 left: (tablePreviewRect.minCol - 1) * CELL_SIZE + 4,
                 top: (tablePreviewRect.minRow - 1) * CELL_SIZE + 4,
@@ -633,14 +670,16 @@ export default function LayoutBuilder() {
                 height: (tablePreviewRect.maxRow - tablePreviewRect.minRow + 1) * CELL_SIZE - 8,
               }}
             >
-              <span className="text-xs font-semibold text-indigo-600">{defaultCapacity}p</span>
+              <span className={`text-xs font-semibold ${tablePreviewInvalid ? 'text-red-500' : 'text-indigo-600'}`}>
+                {tablePreviewInvalid ? '✕' : `${defaultCapacity}p`}
+              </span>
             </div>
           )}
 
           {/* Overlap / too-small error toast */}
           {overlapError && (
             <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs font-medium px-4 py-2 rounded-lg shadow-lg pointer-events-none z-20">
-              Areas cannot overlap
+              {overlapError}
             </div>
           )}
 

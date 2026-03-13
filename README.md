@@ -31,9 +31,15 @@ Restorano/
 │   │   ├── types/             # layout.ts, reservation.ts, recommendation.ts, meal.ts
 │   │   ├── pages/             # MainPage, AdminPage, LoginPage
 │   │   └── utils/             # scoringUtils.ts, gridUtils.ts
+│   ├── src/api/           # axiosClient, authApi, layoutApi, reservationApi, mealApi
 │   └── package.json
-├── backend/           # Spring Boot REST API (not yet built)
-├── docker-compose.yml # PostgreSQL (not yet built)
+├── backend/           # Spring Boot REST API
+│   └── src/main/java/com/restorano/backend/
+│       ├── auth/          # Admin entity, JWT auth
+│       ├── layout/        # FloorPlan, Area, RestaurantTable
+│       ├── reservation/   # Reservation, TableRecommenderService
+│       └── util/          # SecurityConfig, GlobalExceptionHandler, MealDbService
+├── docker-compose.yml # PostgreSQL 16 on port 5434
 └── REQUIREMENTS.md
 ```
 
@@ -41,27 +47,25 @@ Restorano/
 
 ## Getting Started
 
-### Frontend (currently functional with mock data)
+### Full stack (recommended)
 
 ```bash
-cd frontend
-npm install
-npm run dev
-# → http://localhost:5173
+docker compose up -d               # start PostgreSQL (port 5434)
+cd backend && ./mvnw spring-boot:run  # start API on :8080
+
+# Seed admin account (one-time):
+curl -X POST http://localhost:8080/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","email":"admin@restorano.com","password":"secret"}'
+
+cd frontend && npm run dev         # → http://localhost:5173 (proxies /api → :8080)
 ```
 
-Build for production:
+### Frontend only (no backend)
 
 ```bash
-npm run build
-```
-
-### Backend + Database
-
-```bash
-docker compose up -d          # start PostgreSQL (port 5434)
-cd backend
-./mvnw spring-boot:run        # start API on :8080
+cd frontend && npm install && npm run dev
+# → http://localhost:5173 (floor plan loads empty; all API calls fail gracefully)
 ```
 
 ---
@@ -105,7 +109,7 @@ Top 5 results returned, minimum score 0.1.
 
 ---
 
-## Planned API
+## API
 
 ### Auth
 
@@ -119,11 +123,7 @@ Top 5 results returned, minimum score 0.1.
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | GET | `/api/layout` | None | Full floor plan |
-| PUT | `/api/layout` | Admin | Atomically save layout |
-| POST/PUT/DELETE | `/api/layout/areas/{id}` | Admin | CRUD areas |
-| POST/PUT/DELETE | `/api/layout/tables/{id}` | Admin | CRUD tables |
-| POST | `/api/layout/tables/fuse` | Admin | Fuse tables (blocked if reservations exist) |
-| POST | `/api/layout/tables/{id}/split` | Admin | Split fused table (blocked if reservations exist) |
+| PUT | `/api/layout` | Admin | Atomically replace all areas + tables |
 
 ### Reservations
 
@@ -161,5 +161,5 @@ Top 5 results returned, minimum score 0.1.
 |-------|--------|
 | Stage 1 — Frontend (mock data) | ✅ Complete |
 | Stage 2 — Backend core | ✅ Complete |
-| Stage 3 — API integration | ⬜ Not started |
+| Stage 3 — API integration | ✅ Complete |
 | Stage 4 — Polish | 🔶 Partial (Flyway + OpenAPI done) |

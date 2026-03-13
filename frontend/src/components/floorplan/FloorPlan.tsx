@@ -23,7 +23,7 @@ export default function FloorPlan({ onTableClick }: Props) {
   const gridHeight = floorPlan.gridRows * CELL_SIZE;
 
   return (
-    <div className="overflow-auto rounded-2xl border border-slate-200 bg-slate-50 shadow-inner p-4">
+    <div className="overflow-auto rounded-2xl border border-[#e8e3db] bg-[#f9f7f4] shadow-inner p-4">
       <div
         className="relative"
         style={{ width: gridWidth, height: gridHeight }}

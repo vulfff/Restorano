@@ -1,17 +1,17 @@
 const LEGEND_ITEMS = [
-  { label: 'Available',    className: 'bg-white border-2 border-slate-300' },
-  { label: 'Reserved',     className: 'bg-slate-100 border-2 border-slate-300 opacity-60' },
-  { label: 'Selected',     className: 'bg-blue-500 border-2 border-blue-600' },
-  { label: 'Recommended',  className: 'bg-amber-400 border-2 border-amber-500' },
-  { label: 'Too small',    className: 'bg-red-50 border-2 border-red-200 opacity-60' },
+  { label: 'Available',   style: { backgroundColor: 'white', border: '2px solid #b5d5c8' } },
+  { label: 'Reserved',    style: { backgroundColor: '#f5f2ee', border: '2px solid #d6d0c8', opacity: 0.75 } },
+  { label: 'Selected',    style: { backgroundColor: '#0f4c3a', border: '2px solid #0f4c3a' } },
+  { label: 'Recommended', style: { backgroundColor: '#d97706', border: '2px solid #b45309' } },
+  { label: 'Too small',   style: { backgroundColor: '#fff1f2', border: '2px solid #fecdd3', opacity: 0.7 } },
 ];
 
 export default function TableLegend() {
   return (
-    <div className="flex flex-wrap gap-3 text-xs text-slate-600">
+    <div className="flex flex-wrap gap-4 text-xs text-[#78716c]">
       {LEGEND_ITEMS.map((item) => (
         <div key={item.label} className="flex items-center gap-1.5">
-          <div className={`w-4 h-4 rounded ${item.className}`} />
+          <div className="w-4 h-4 rounded" style={item.style} />
           <span>{item.label}</span>
         </div>
       ))}

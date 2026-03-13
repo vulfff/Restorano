@@ -8,10 +8,10 @@ A restaurant table reservation management system. Staff see a top-down grid floo
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS v4, Zustand, TanStack Query |
-| Backend | Java 21, Spring Boot 3.x *(not yet built)* |
-| Database | PostgreSQL *(not yet built)* |
-| External API | TheMealDB |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS v4, Zustand |
+| Backend | Java 21, Spring Boot 3.x, Flyway, jjwt 0.12, SpringDoc OpenAPI |
+| Database | PostgreSQL 16 |
+| External API | TheMealDB (proxied via `/api/meals/suggest`) |
 
 ---
 
@@ -58,12 +58,8 @@ npm run build
 
 ### Backend + Database
 
-> Not yet implemented. See the planned API endpoints below.
-
-When built:
-
 ```bash
-docker compose up -d          # start PostgreSQL
+docker compose up -d          # start PostgreSQL (port 5434)
 cd backend
 ./mvnw spring-boot:run        # start API on :8080
 ```
@@ -164,6 +160,6 @@ Top 5 results returned, minimum score 0.1.
 | Stage | Status |
 |-------|--------|
 | Stage 1 — Frontend (mock data) | ✅ Complete |
-| Stage 2 — Backend core | ⬜ Not started |
+| Stage 2 — Backend core | ✅ Complete |
 | Stage 3 — API integration | ⬜ Not started |
-| Stage 4 — Polish | ⬜ Not started |
+| Stage 4 — Polish | 🔶 Partial (Flyway + OpenAPI done) |

@@ -11,27 +11,27 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-sm">
-      <Link to="/" className="text-xl font-bold text-slate-800 hover:text-blue-600 transition-colors">
+    <nav className="bg-white border-b border-[#e8e3db] px-6 py-3.5 flex items-center justify-between">
+      <Link to="/" className="font-display text-2xl font-semibold tracking-wide text-[#1c1917] hover:text-[#0f4c3a] transition-colors">
         Restorano
       </Link>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-5">
         {isAdmin ? (
           <>
-            <Link to="/admin" className="text-sm text-slate-600 hover:text-blue-600 transition-colors">
+            <Link to="/admin" className="text-sm text-[#78716c] hover:text-[#0f4c3a] transition-colors">
               Layout Builder
             </Link>
-            <span className="text-xs text-slate-400">|</span>
-            <span className="text-sm text-slate-600">{username}</span>
+            <span className="text-xs text-[#d6d0c8]">|</span>
+            <span className="text-sm text-[#78716c]">{username}</span>
             <button
               onClick={handleLogout}
-              className="text-sm text-red-500 hover:text-red-700 transition-colors"
+              className="text-sm text-[#b91c1c] hover:text-[#991b1b] transition-colors"
             >
               Logout
             </button>
           </>
         ) : (
-          <Link to="/login" className="text-sm text-slate-600 hover:text-blue-600 transition-colors">
+          <Link to="/login" className="text-sm text-[#78716c] hover:text-[#0f4c3a] transition-colors">
             Admin Login
           </Link>
         )}

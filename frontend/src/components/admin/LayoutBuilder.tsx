@@ -48,7 +48,7 @@ function handleStyle(h: ResizeHandle, w: number, ht: number): React.CSSPropertie
     height: HANDLE_SIZE,
     cursor: HANDLE_CURSORS[h],
     backgroundColor: 'white',
-    border: '2px solid #3b82f6',
+    border: '2px solid #0f4c3a',
     borderRadius: 2,
     zIndex: 10,
     ...positions[h],
@@ -367,15 +367,15 @@ export default function LayoutBuilder() {
   return (
     <div className="flex gap-4 h-full">
       {/* Sidebar */}
-      <div className="w-56 flex-shrink-0 bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-4">
+      <div className="w-56 flex-shrink-0 bg-white border border-[#e8e3db] rounded-xl p-4 flex flex-col gap-4">
         <div>
-          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Tool</div>
+          <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide mb-2">Tool</div>
           {(['select', 'draw-area', 'add-table'] as Tool[]).map((t) => (
             <button
               key={t}
               onClick={() => setTool(t)}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 transition-colors ${
-                tool === t ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-100'
+                tool === t ? 'bg-[#0f4c3a] text-white' : 'text-[#1c1917] hover:bg-[#f9f7f4]'
               }`}
             >
               {t === 'select' ? '↖ Select / Move' : t === 'draw-area' ? '▭ Draw Area' : '▭ Draw Table'}
@@ -385,21 +385,21 @@ export default function LayoutBuilder() {
 
         {tool === 'draw-area' && (
           <div>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Area Settings</div>
+            <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide mb-2">Area Settings</div>
             <input
               type="text"
               value={areaName}
               onChange={(e) => setAreaName(e.target.value)}
               placeholder="Area name"
-              className="w-full border border-slate-300 rounded px-2 py-1.5 text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400"
+              className="w-full border border-[#e8e3db] rounded px-2 py-1.5 text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-[#0f4c3a]"
             />
             <div className="flex items-center gap-2">
-              <label className="text-xs text-slate-500">Color:</label>
+              <label className="text-xs text-[#78716c]">Color:</label>
               <input
                 type="color"
                 value={areaColor}
                 onChange={(e) => setAreaColor(e.target.value)}
-                className="w-8 h-8 rounded cursor-pointer border border-slate-300"
+                className="w-8 h-8 rounded cursor-pointer border border-[#e8e3db]"
               />
             </div>
           </div>
@@ -407,49 +407,49 @@ export default function LayoutBuilder() {
 
         {tool === 'add-table' && (
           <div>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Default Capacity</div>
+            <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide mb-2">Default Capacity</div>
             <input
               type="number"
               min={1}
               max={20}
               value={defaultCapacity}
               onChange={(e) => setDefaultCapacity(parseInt(e.target.value, 10))}
-              className="w-full border border-slate-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+              className="w-full border border-[#e8e3db] rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#0f4c3a]"
             />
-            <p className="text-[11px] text-slate-400 mt-1">Drag on canvas to draw a table</p>
+            <p className="text-[11px] text-[#a8a29e] mt-1">Drag on canvas to draw a table</p>
           </div>
         )}
 
         {/* Single non-fused table editing */}
         {singleSelectedTable && (
-          <div className="border-t pt-3 flex flex-col gap-2">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Edit Table</div>
+          <div className="border-t border-[#e8e3db] pt-3 flex flex-col gap-2">
+            <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide">Edit Table</div>
             <div>
-              <label className="text-xs text-slate-500 block mb-1">Label</label>
+              <label className="text-xs text-[#78716c] block mb-1">Label</label>
               <input
                 type="text"
                 value={singleSelectedTable.label}
                 onChange={(e) => updateTable({ ...singleSelectedTable, label: e.target.value })}
-                className="w-full border border-slate-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+                className="w-full border border-[#e8e3db] rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#0f4c3a]"
               />
             </div>
             <div>
-              <label className="text-xs text-slate-500 block mb-1">Capacity</label>
+              <label className="text-xs text-[#78716c] block mb-1">Capacity</label>
               <input
                 type="number"
                 min={1}
                 max={30}
                 value={singleSelectedTable.capacity}
                 onChange={(e) => updateTable({ ...singleSelectedTable, capacity: parseInt(e.target.value, 10) || 1 })}
-                className="w-full border border-slate-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+                className="w-full border border-[#e8e3db] rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#0f4c3a]"
               />
             </div>
           </div>
         )}
 
         {selectedTableIds.length > 0 && (
-          <div className="border-t pt-3 flex flex-col gap-2">
-            <div className="text-xs text-slate-500">{selectedTableIds.length} table(s) selected</div>
+          <div className="border-t border-[#e8e3db] pt-3 flex flex-col gap-2">
+            <div className="text-xs text-[#78716c]">{selectedTableIds.length} table(s) selected</div>
             {selectedTableIds.length === 1 &&
               floorPlan.tables.find((t) => t.id === selectedTableIds[0])?.isFused && (
               <button
@@ -483,26 +483,26 @@ export default function LayoutBuilder() {
           const selectedArea = floorPlan.areas.find((a) => a.id === selectedAreaId);
           if (!selectedArea) return null;
           return (
-            <div className="border-t pt-3 flex flex-col gap-2">
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Edit Area</div>
+            <div className="border-t border-[#e8e3db] pt-3 flex flex-col gap-2">
+              <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide">Edit Area</div>
               <div>
-                <label className="text-xs text-slate-500 block mb-1">Name</label>
+                <label className="text-xs text-[#78716c] block mb-1">Name</label>
                 <input
                   type="text"
                   value={selectedArea.name}
                   onChange={(e) => updateArea({ ...selectedArea, name: e.target.value })}
-                  className="w-full border border-slate-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  className="w-full border border-[#e8e3db] rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#0f4c3a]"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-xs text-slate-500">Color:</label>
+                <label className="text-xs text-[#78716c]">Color:</label>
                 <input
                   type="color"
                   value={selectedArea.color}
                   onChange={(e) => updateArea({ ...selectedArea, color: e.target.value })}
-                  className="w-8 h-8 rounded cursor-pointer border border-slate-300"
+                  className="w-8 h-8 rounded cursor-pointer border border-[#e8e3db]"
                 />
-                <span className="text-xs text-slate-400">{selectedArea.color}</span>
+                <span className="text-xs text-[#a8a29e]">{selectedArea.color}</span>
               </div>
               <button
                 onClick={handleDeleteSelected}
@@ -515,7 +515,7 @@ export default function LayoutBuilder() {
         })()}
 
         <div className="mt-auto">
-          <button className="w-full py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium">
+          <button className="w-full py-2 bg-[#0f4c3a] text-white rounded-lg hover:bg-[#1a6b52] text-sm font-medium transition-colors">
             Save Layout
           </button>
         </div>
@@ -551,7 +551,7 @@ export default function LayoutBuilder() {
               <div
                 key={area.id}
                 className={`absolute rounded-xl border-2 pointer-events-none ${
-                  isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : ''
+                  isSelected ? 'ring-2 ring-[#0f4c3a] ring-offset-1' : ''
                 }`}
                 style={{
                   left: (area.topLeftCol - 1) * CELL_SIZE,
@@ -559,7 +559,7 @@ export default function LayoutBuilder() {
                   width: areaW,
                   height: areaH,
                   backgroundColor: area.color + 'aa',
-                  borderColor: isSelected ? '#3b82f6' : area.color,
+                  borderColor: isSelected ? '#0f4c3a' : area.color,
                 }}
               >
                 <span className="text-xs font-semibold text-slate-600 p-2 block">{area.name}</span>
@@ -624,8 +624,8 @@ export default function LayoutBuilder() {
                 key={table.id}
                 className={`absolute flex flex-col items-center justify-center rounded-lg border-2 text-xs font-bold transition-all ${
                   isSelected
-                    ? 'border-blue-500 bg-blue-100 text-blue-800 shadow-lg'
-                    : 'border-slate-400 bg-white text-slate-700 hover:border-blue-400'
+                    ? 'border-[#0f4c3a] bg-[#eef7f3] text-[#0f4c3a] shadow-lg'
+                    : 'border-[#b5d5c8] bg-white text-[#1c1917] hover:border-[#0f4c3a]'
                 } ${draggingTableId === table.id ? 'opacity-80 z-10' : ''}`}
                 style={{
                   left: (table.col - 1) * CELL_SIZE + 4,

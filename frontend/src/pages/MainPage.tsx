@@ -17,8 +17,8 @@ export default function MainPage() {
   return (
     <div className="flex flex-col gap-4 p-6 flex-1">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Floor Plan</h1>
-        <p className="text-sm text-slate-500 mt-0.5">View tables and manage reservations</p>
+        <h1 className="font-display text-3xl font-semibold text-[#1c1917]">Floor Plan</h1>
+        <p className="text-sm text-[#78716c] mt-0.5">View tables and manage reservations</p>
       </div>
 
       <FilterBar onNewReservation={() => { setClickedTableId(undefined); setDrawerOpen(true); }} />

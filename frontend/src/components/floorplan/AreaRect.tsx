@@ -23,7 +23,7 @@ export default function AreaRect({ area, cellSize }: Props) {
         borderColor: area.color,
       }}
     >
-      <span className="text-xs font-semibold text-slate-600 opacity-80">{area.name}</span>
+      <span className="text-xs font-semibold tracking-wide text-[#1c1917] opacity-70 uppercase">{area.name}</span>
     </div>
   );
 }

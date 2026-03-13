@@ -1,12 +1,6 @@
 import { useState } from 'react';
 import type { MealSummary } from '../../types/meal';
-
-// Mock TheMealDB data
-const MOCK_MEALS: MealSummary[] = [
-  { idMeal: '52772', strMeal: 'Teriyaki Chicken Casserole', strMealThumb: 'https://www.themealdb.com/images/media/meals/wvpsxx1468256321.jpg', strCategory: 'Chicken', strArea: 'Japanese' },
-  { idMeal: '52771', strMeal: 'Spicy Arrabiata Penne', strMealThumb: 'https://www.themealdb.com/images/media/meals/ustsqw1468250014.jpg', strCategory: 'Pasta', strArea: 'Italian' },
-  { idMeal: '52770', strMeal: 'Spaghetti Bolognese', strMealThumb: 'https://www.themealdb.com/images/media/meals/sutysw1468247559.jpg', strCategory: 'Beef', strArea: 'Italian' },
-];
+import * as mealApi from '../../api/mealApi';
 
 export default function MealSuggestions() {
   const [keyword, setKeyword] = useState('');
@@ -14,15 +8,18 @@ export default function MealSuggestions() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!keyword.trim()) return;
     setLoading(true);
     setSearched(true);
-    // Simulate API delay with mock data
-    setTimeout(() => {
-      setMeals(MOCK_MEALS);
+    try {
+      const results = await mealApi.suggestMeals(keyword.trim());
+      setMeals(results);
+    } catch {
+      setMeals([]);
+    } finally {
       setLoading(false);
-    }, 600);
+    }
   };
 
   return (

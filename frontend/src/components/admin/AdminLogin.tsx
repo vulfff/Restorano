@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import * as authApi from '../../api/authApi';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -14,17 +15,21 @@ export default function AdminLogin() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
-    // TODO: POST /api/auth/login
-    // Mock: accept any non-empty credentials
-    await new Promise((r) => setTimeout(r, 600));
-    if (username && password) {
-      login('mock-jwt-token', username);
+    try {
+      const { token } = await authApi.login(username, password);
+      login(token, username);
       navigate('/admin');
-    } else {
-      setError('Enter username and password.');
+    } catch (err: unknown) {
+      // Axios 401 means wrong credentials
+      const axiosErr = err as { response?: { status?: number } };
+      if (axiosErr?.response?.status === 401) {
+        setError('Invalid username or password.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

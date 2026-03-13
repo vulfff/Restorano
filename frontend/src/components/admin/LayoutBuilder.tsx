@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import type { Area, Table } from '../../types/layout';
 import { useLayoutStore } from '../../store/layoutStore';
+import * as layoutApi from '../../api/layoutApi';
 
 const CELL_SIZE = 60;
 const HANDLE_SIZE = 10; // px — resize handle square
@@ -86,6 +87,8 @@ export default function LayoutBuilder() {
   const [draggingTableId, setDraggingTableId] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState({ col: 0, row: 0 });
   const [overlapError, setOverlapError] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [saveError, setSaveError] = useState<string | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
   const getCellFromEvent = useCallback((e: React.MouseEvent) => {
@@ -296,6 +299,26 @@ export default function LayoutBuilder() {
     }
 
     setDraggingTableId(null);
+  };
+
+  const handleSaveLayout = async () => {
+    setSaveStatus('saving');
+    setSaveError(null);
+    try {
+      const saved = await layoutApi.saveLayout(floorPlan);
+      useLayoutStore.getState().setFloorPlan(saved);
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number; data?: { details?: string[] } } };
+      if (axiosErr?.response?.status === 409) {
+        const details = axiosErr.response?.data?.details;
+        setSaveError(details?.join(', ') ?? 'Cannot save: tables have future reservations.');
+      } else {
+        setSaveError('Save failed. Please try again.');
+      }
+      setSaveStatus('error');
+    }
   };
 
   const handleDeleteSelected = () => {
@@ -515,9 +538,14 @@ export default function LayoutBuilder() {
         })()}
 
         <div className="mt-auto">
-          <button className="w-full py-2 bg-[#0f4c3a] text-white rounded-lg hover:bg-[#1a6b52] text-sm font-medium transition-colors">
-            Save Layout
+          <button
+            onClick={handleSaveLayout}
+            disabled={saveStatus === 'saving'}
+            className="w-full py-2 bg-[#0f4c3a] text-white rounded-lg hover:bg-[#1a6b52] text-sm font-medium transition-colors disabled:opacity-50"
+          >
+            {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved ✓' : 'Save Layout'}
           </button>
+          {saveError && <p className="text-xs text-red-500 mt-1">{saveError}</p>}
         </div>
       </div>
 

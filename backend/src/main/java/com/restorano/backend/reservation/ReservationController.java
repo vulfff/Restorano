@@ -47,6 +47,13 @@ public class ReservationController {
         reservationService.deleteReservation(id);
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ReservationDto updateReservation(@PathVariable Long id,
+                                            @RequestBody @Valid UpdateReservationRequest req) {
+        return reservationService.updateReservation(id, req);
+    }
+
     @GetMapping("/table/{tableId}")
     public List<ReservationDto> getReservationsForTable(@PathVariable Long tableId) {
         return reservationService.getReservationsForTable(tableId);

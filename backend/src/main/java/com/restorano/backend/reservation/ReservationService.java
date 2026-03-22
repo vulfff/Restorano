@@ -3,6 +3,7 @@ package com.restorano.backend.reservation;
 import com.restorano.backend.layout.models.RestaurantTable;
 import com.restorano.backend.layout.repositories.RestaurantTableRepository;
 import com.restorano.backend.reservation.dto.CreateReservationRequest;
+import com.restorano.backend.reservation.dto.UpdateReservationRequest;
 import com.restorano.backend.reservation.dto.ReservationDto;
 import com.restorano.backend.reservation.models.Reservation;
 import com.restorano.backend.reservation.repositories.ReservationRepository;
@@ -73,6 +74,32 @@ public class ReservationService {
         reservation.setEndsAt(endsAt);
         reservation.setNotes(req.notes());
         reservation.setTables(tables);
+
+        return toDto(reservationRepository.save(reservation));
+    }
+
+    @Transactional
+    public ReservationDto updateReservation(Long id, UpdateReservationRequest req) {
+        Reservation reservation = reservationRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Reservation not found: " + id));
+
+        Instant endsAt = req.startsAt().plusSeconds((long) (2.5 * 3600));
+
+        List<String> conflicts = new ArrayList<>();
+        for (RestaurantTable table : reservation.getTables()) {
+            if (reservationRepository.existsOverlapExcluding(table.getId(), req.startsAt(), endsAt, id)) {
+                conflicts.add("Table '" + table.getLabel() + "' is already booked for this time");
+            }
+        }
+        if (!conflicts.isEmpty()) {
+            throw new ConflictException("Booking conflict", conflicts);
+        }
+
+        reservation.setGuestName(req.guestName());
+        reservation.setPartySize(req.partySize());
+        reservation.setStartsAt(req.startsAt());
+        reservation.setEndsAt(endsAt);
+        reservation.setNotes(req.notes());
 
         return toDto(reservationRepository.save(reservation));
     }

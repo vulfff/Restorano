@@ -22,6 +22,19 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                           @Param("endsAt") Instant endsAt);
 
     @Query("""
+        SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END
+        FROM Reservation r JOIN r.tables t
+        WHERE t.id = :tableId
+          AND r.id <> :excludeId
+          AND r.startsAt < :endsAt
+          AND r.endsAt   > :startsAt
+        """)
+    boolean existsOverlapExcluding(@Param("tableId") Long tableId,
+                                    @Param("startsAt") Instant startsAt,
+                                    @Param("endsAt") Instant endsAt,
+                                    @Param("excludeId") Long excludeId);
+
+    @Query("""
         SELECT r FROM Reservation r JOIN r.tables t
         WHERE t.id = :tableId
           AND r.startsAt > :now

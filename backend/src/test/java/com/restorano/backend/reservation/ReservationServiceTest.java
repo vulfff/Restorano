@@ -3,6 +3,7 @@ package com.restorano.backend.reservation;
 import com.restorano.backend.layout.models.RestaurantTable;
 import com.restorano.backend.layout.repositories.RestaurantTableRepository;
 import com.restorano.backend.reservation.dto.CreateReservationRequest;
+import com.restorano.backend.reservation.dto.UpdateReservationRequest;
 import com.restorano.backend.reservation.dto.ReservationDto;
 import com.restorano.backend.reservation.models.Reservation;
 import com.restorano.backend.reservation.repositories.ReservationRepository;
@@ -106,6 +107,61 @@ class ReservationServiceTest {
                 assertThat(ce.getConflicts().get(0).toString()).contains("T2");
                 assertThat(ce.getConflicts().get(0).toString()).doesNotContain("T1");
             });
+    }
+
+    private UpdateReservationRequest updateReq() {
+        return new UpdateReservationRequest("Bob", 3, STARTS_AT, "window seat");
+    }
+
+    private Reservation existingReservation(long id, RestaurantTable... tables) {
+        Reservation r = new Reservation();
+        r.setId(id);
+        r.setGuestName("Alice");
+        r.setPartySize(2);
+        r.setStartsAt(STARTS_AT);
+        r.setEndsAt(ENDS_AT);
+        r.setNotes(null);
+        r.setTables(new java.util.ArrayList<>(java.util.Arrays.asList(tables)));
+        return r;
+    }
+
+    @Test
+    void updates_reservation_when_no_overlap() {
+        RestaurantTable t = table(1L, "T1");
+        Reservation existing = existingReservation(10L, t);
+        when(reservationRepository.findById(10L)).thenReturn(Optional.of(existing));
+        when(reservationRepository.existsOverlapExcluding(eq(1L), eq(STARTS_AT), eq(ENDS_AT), eq(10L)))
+            .thenReturn(false);
+        when(reservationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        ReservationDto dto = service.updateReservation(10L, updateReq());
+
+        assertThat(dto.guestName()).isEqualTo("Bob");
+        assertThat(dto.partySize()).isEqualTo(3);
+        assertThat(dto.notes()).isEqualTo("window seat");
+        verify(reservationRepository).save(existing);
+    }
+
+    @Test
+    void throws_ConflictException_on_update_when_time_overlaps_another_reservation() {
+        RestaurantTable t = table(1L, "T1");
+        Reservation existing = existingReservation(10L, t);
+        when(reservationRepository.findById(10L)).thenReturn(Optional.of(existing));
+        when(reservationRepository.existsOverlapExcluding(eq(1L), eq(STARTS_AT), eq(ENDS_AT), eq(10L)))
+            .thenReturn(true);
+
+        assertThatThrownBy(() -> service.updateReservation(10L, updateReq()))
+            .isInstanceOf(ConflictException.class);
+        verify(reservationRepository, never()).save(any());
+    }
+
+    @Test
+    void throws_NotFoundException_on_update_when_reservation_does_not_exist() {
+        when(reservationRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.updateReservation(99L, updateReq()))
+            .isInstanceOf(NotFoundException.class);
+        verify(reservationRepository, never()).save(any());
     }
 
     @Test

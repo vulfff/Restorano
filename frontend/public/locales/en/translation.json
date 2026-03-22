@@ -86,5 +86,32 @@
   "builder.errorAreaOverlap": "Areas cannot overlap",
   "builder.errorTableOverlap": "Tables cannot overlap",
   "builder.errorFutureReservations": "Cannot save: tables have future reservations.",
-  "builder.errorSaveFailed": "Save failed. Please try again."
+  "builder.errorSaveFailed": "Save failed. Please try again.",
+
+  "tableDrawer.title": "Table {{label}}",
+  "tableDrawer.upcomingTitle": "Upcoming Reservations",
+  "tableDrawer.emptyState": "No upcoming reservations for this table.",
+  "tableDrawer.guests": "{{count}} guests",
+  "tableDrawer.edit": "Edit",
+  "tableDrawer.cancel": "Cancel",
+  "tableDrawer.save": "Save",
+  "tableDrawer.delete": "Delete",
+  "tableDrawer.errorSave": "Could not save changes. Please try again.",
+  "tableDrawer.errorSaveConflict": "Time conflict — this table is already booked then.",
+  "tableDrawer.errorDelete": "Could not delete reservation. Please try again.",
+  "tableDrawer.newTitle": "New Reservation",
+  "tableDrawer.tableBadge": "Table: {{label}} ({{capacity}}p)",
+  "tableDrawer.guestName": "Guest Name *",
+  "tableDrawer.guestNamePlaceholder": "Full name",
+  "tableDrawer.partySize": "Party Size *",
+  "tableDrawer.date": "Date *",
+  "tableDrawer.time": "Time *",
+  "tableDrawer.notes": "Notes",
+  "tableDrawer.notesPlaceholder": "Allergies, occasion, etc.",
+  "tableDrawer.book": "Book",
+  "tableDrawer.errorBook": "Booking failed. Please try again.",
+  "tableDrawer.errorBookConflict": "This table is already booked for that time.",
+  "tableDrawer.bookedSuccess": "Reservation added.",
+
+  "builder.errorDeleteBlocked": "Cannot delete: {{labels}} has future reservations."
 }

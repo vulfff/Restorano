@@ -13,17 +13,16 @@ interface Props {
 
 const STATUS_STYLES: Record<TableStatus, string> = {
   available:    'bg-white border-2 border-[#b5d5c8] text-[#1c1917] hover:border-[#0f4c3a] hover:shadow-md cursor-pointer',
-  reserved:     'bg-[#f5f2ee] border-2 border-[#d6d0c8] text-[#a8a29e] opacity-75 cursor-not-allowed',
+  reserved:     'bg-[#f5f2ee] border-2 border-[#d6d0c8] text-[#a8a29e] opacity-75 cursor-pointer',
   selected:     'bg-[#0f4c3a] border-2 border-[#0f4c3a] text-white shadow-lg cursor-pointer',
   recommended:  'bg-[#d97706] border-2 border-[#b45309] text-white shadow-lg cursor-pointer animate-pulse',
-  unavailable:  'bg-[#fff1f2] border-2 border-[#fecdd3] text-[#e07070] opacity-60 cursor-not-allowed',
+  unavailable:  'bg-[#fff1f2] border-2 border-[#fecdd3] text-[#e07070] opacity-60 cursor-pointer',
 };
 
 export default function TableCell({ table, status, reservations, recommendRank, onClick }: Props) {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const handleClick = () => {
-    if (status === 'reserved' || status === 'unavailable') return;
     onClick?.(table);
   };
 

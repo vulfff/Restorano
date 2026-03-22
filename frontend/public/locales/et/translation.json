@@ -86,5 +86,32 @@
   "builder.errorAreaOverlap": "Alad ei tohi kattuda",
   "builder.errorTableOverlap": "Lauad ei tohi kattuda",
   "builder.errorFutureReservations": "Ei saa salvestada: laudadel on tulevased reserveeringud.",
-  "builder.errorSaveFailed": "Salvestamine ebaõnnestus. Proovige uuesti."
+  "builder.errorSaveFailed": "Salvestamine ebaõnnestus. Proovige uuesti.",
+
+  "tableDrawer.title": "Laud {{label}}",
+  "tableDrawer.upcomingTitle": "Tulevased reserveeringud",
+  "tableDrawer.emptyState": "Sellel laual pole tulevasi reserveeringuid.",
+  "tableDrawer.guests": "{{count}} külalist",
+  "tableDrawer.edit": "Muuda",
+  "tableDrawer.cancel": "Tühista",
+  "tableDrawer.save": "Salvesta",
+  "tableDrawer.delete": "Kustuta",
+  "tableDrawer.errorSave": "Muudatuste salvestamine ebaõnnestus. Proovige uuesti.",
+  "tableDrawer.errorSaveConflict": "Ajakonflikti — see laud on sel ajal juba broneeritud.",
+  "tableDrawer.errorDelete": "Reserveeringu kustutamine ebaõnnestus. Proovige uuesti.",
+  "tableDrawer.newTitle": "Uus reserveering",
+  "tableDrawer.tableBadge": "Laud: {{label}} ({{capacity}}k)",
+  "tableDrawer.guestName": "Külalise nimi *",
+  "tableDrawer.guestNamePlaceholder": "Täisnimi",
+  "tableDrawer.partySize": "Seltskonna suurus *",
+  "tableDrawer.date": "Kuupäev *",
+  "tableDrawer.time": "Kellaaeg *",
+  "tableDrawer.notes": "Märkused",
+  "tableDrawer.notesPlaceholder": "Allergiad, sündmus jne.",
+  "tableDrawer.book": "Broneeri",
+  "tableDrawer.errorBook": "Broneerimine ebaõnnestus. Proovige uuesti.",
+  "tableDrawer.errorBookConflict": "See laud on sellel ajal juba broneeritud.",
+  "tableDrawer.bookedSuccess": "Reserveering lisatud.",
+
+  "builder.errorDeleteBlocked": "Ei saa kustutada: laudadel {{labels}} on tulevased reserveeringud."
 }

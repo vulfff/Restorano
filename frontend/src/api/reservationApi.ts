@@ -22,6 +22,18 @@ export async function deleteReservation(id: number): Promise<void> {
   await axiosClient.delete(`/reservations/${id}`);
 }
 
+export interface UpdateReservationRequest {
+  guestName: string;
+  partySize: number;
+  startsAt: string;   // ISO 8601
+  notes?: string;
+}
+
+export async function updateReservation(id: number, req: UpdateReservationRequest): Promise<Reservation> {
+  const response = await axiosClient.put<Reservation>(`/reservations/${id}`, req);
+  return response.data;
+}
+
 export async function getReservationsForTable(tableId: number): Promise<Reservation[]> {
   const response = await axiosClient.get<Reservation[]>(`/reservations/table/${tableId}`);
   return response.data;

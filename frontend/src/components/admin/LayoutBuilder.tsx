@@ -91,7 +91,7 @@ let nextTempId = 1000;
 
 export default function LayoutBuilder() {
   const { t } = useTranslation();
-  const { floorPlan, addArea, updateArea, removeArea, addTable, updateTable, removeTable, splitTable } = useLayoutStore();
+  const { floorPlan, addArea, updateArea, removeArea, addTable, updateTable, removeTable, splitTable, reservations } = useLayoutStore();
   const [tool, setTool] = useState<Tool>('select');
   const [selectedTableIds, setSelectedTableIds] = useState<number[]>([]);
   const [selectedAreaId, setSelectedAreaId] = useState<number | null>(null);
@@ -346,6 +346,21 @@ export default function LayoutBuilder() {
   };
 
   const handleDeleteSelected = () => {
+    const now = new Date().toISOString();
+    const blockedLabels = selectedTableIds
+      .filter((id) =>
+        reservations.some(
+          (res) => res.tableIds.includes(id) && res.startsAt > now
+        )
+      )
+      .map((id) => floorPlan.tables.find((t) => t.id === id)?.label ?? String(id));
+
+    if (blockedLabels.length > 0) {
+      setOverlapError(t('builder.errorDeleteBlocked', { labels: blockedLabels.join(', ') }));
+      setTimeout(() => setOverlapError(null), 3000);
+      return;
+    }
+
     selectedTableIds.forEach((id) => removeTable(id));
     setSelectedTableIds([]);
     if (selectedAreaId !== null) {

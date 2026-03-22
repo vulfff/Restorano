@@ -54,5 +54,37 @@
 
   "meals.title": "Dish Suggestions (optional)",
   "meals.placeholder": "e.g. pasta, chicken...",
-  "meals.search": "Search"
+  "meals.search": "Search",
+
+  "page.floorPlan": "Floor Plan",
+  "page.floorPlanSubtitle": "View tables and manage reservations",
+  "page.layoutBuilder": "Layout Builder",
+  "page.layoutBuilderSubtitle": "Draw areas, place tables, and configure your restaurant layout",
+
+  "builder.tool": "Tool",
+  "builder.toolSelect": "↖ Select / Move",
+  "builder.toolDrawArea": "▭ Draw Area",
+  "builder.toolDrawTable": "▭ Draw Table",
+  "builder.areaSettings": "Area Settings",
+  "builder.areaNamePlaceholder": "Area name",
+  "builder.color": "Color:",
+  "builder.defaultCapacity": "Default Capacity",
+  "builder.drawHint": "Drag on canvas to draw a table",
+  "builder.editTable": "Edit Table",
+  "builder.label": "Label",
+  "builder.capacity": "Capacity",
+  "builder.tablesSelected": "{{count}} table(s) selected",
+  "builder.splitTable": "Split Table",
+  "builder.joinTables": "Join Tables",
+  "builder.delete": "Delete",
+  "builder.editArea": "Edit Area",
+  "builder.name": "Name",
+  "builder.deleteArea": "Delete Area",
+  "builder.saving": "Saving...",
+  "builder.saved": "Saved ✓",
+  "builder.saveLayout": "Save Layout",
+  "builder.errorAreaOverlap": "Areas cannot overlap",
+  "builder.errorTableOverlap": "Tables cannot overlap",
+  "builder.errorFutureReservations": "Cannot save: tables have future reservations.",
+  "builder.errorSaveFailed": "Save failed. Please try again."
 }

@@ -54,5 +54,37 @@
 
   "meals.title": "Roa soovitused (valikuline)",
   "meals.placeholder": "nt pasta, kana...",
-  "meals.search": "Otsi"
+  "meals.search": "Otsi",
+
+  "page.floorPlan": "Põhiplaan",
+  "page.floorPlanSubtitle": "Vaata laudu ja halda reserveeringuid",
+  "page.layoutBuilder": "Paigutuse kujundaja",
+  "page.layoutBuilderSubtitle": "Joonista alad, paiguta lauad ja konfigureeri restorani paigutus",
+
+  "builder.tool": "Tööriist",
+  "builder.toolSelect": "↖ Vali / Liiguta",
+  "builder.toolDrawArea": "▭ Joonista ala",
+  "builder.toolDrawTable": "▭ Joonista laud",
+  "builder.areaSettings": "Ala seaded",
+  "builder.areaNamePlaceholder": "Ala nimi",
+  "builder.color": "Värv:",
+  "builder.defaultCapacity": "Vaikimisi mahtuvus",
+  "builder.drawHint": "Laua joonistamiseks lohista lõuendil",
+  "builder.editTable": "Muuda lauda",
+  "builder.label": "Silt",
+  "builder.capacity": "Mahtuvus",
+  "builder.tablesSelected": "{{count}} laud(a) valitud",
+  "builder.splitTable": "Eralda laud",
+  "builder.joinTables": "Ühenda lauad",
+  "builder.delete": "Kustuta",
+  "builder.editArea": "Muuda ala",
+  "builder.name": "Nimi",
+  "builder.deleteArea": "Kustuta ala",
+  "builder.saving": "Salvestamine...",
+  "builder.saved": "Salvestatud ✓",
+  "builder.saveLayout": "Salvesta paigutus",
+  "builder.errorAreaOverlap": "Alad ei tohi kattuda",
+  "builder.errorTableOverlap": "Lauad ei tohi kattuda",
+  "builder.errorFutureReservations": "Ei saa salvestada: laudadel on tulevased reserveeringud.",
+  "builder.errorSaveFailed": "Salvestamine ebaõnnestus. Proovige uuesti."
 }

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Area, Table } from '../../types/layout';
 import { useLayoutStore } from '../../store/layoutStore';
 import * as layoutApi from '../../api/layoutApi';
@@ -89,6 +90,7 @@ function wouldTableOverlap(candidate: Table, allTables: Table[], excludeId?: num
 let nextTempId = 1000;
 
 export default function LayoutBuilder() {
+  const { t } = useTranslation();
   const { floorPlan, addArea, updateArea, removeArea, addTable, updateTable, removeTable, splitTable } = useLayoutStore();
   const [tool, setTool] = useState<Tool>('select');
   const [selectedTableIds, setSelectedTableIds] = useState<number[]>([]);
@@ -277,7 +279,7 @@ export default function LayoutBuilder() {
 
       // Block creation if it would overlap an existing area
       if (wouldOverlap(newArea, floorPlan.areas)) {
-        setOverlapError('Areas cannot overlap');
+        setOverlapError(t('builder.errorAreaOverlap'));
         setTimeout(() => setOverlapError(null), 2500);
         return;
       }
@@ -308,7 +310,7 @@ export default function LayoutBuilder() {
       };
 
       if (wouldTableOverlap(newTable, floorPlan.tables)) {
-        setOverlapError('Tables cannot overlap');
+        setOverlapError(t('builder.errorTableOverlap'));
         setTimeout(() => setOverlapError(null), 2500);
         return;
       }
@@ -335,9 +337,9 @@ export default function LayoutBuilder() {
       const axiosErr = err as { response?: { status?: number; data?: { details?: string[] } } };
       if (axiosErr?.response?.status === 409) {
         const details = axiosErr.response?.data?.details;
-        setSaveError(details?.join(', ') ?? 'Cannot save: tables have future reservations.');
+        setSaveError(details?.join(', ') ?? t('builder.errorFutureReservations'));
       } else {
-        setSaveError('Save failed. Please try again.');
+        setSaveError(t('builder.errorSaveFailed'));
       }
       setSaveStatus('error');
     }
@@ -425,32 +427,32 @@ export default function LayoutBuilder() {
       {/* Sidebar */}
       <div className="w-56 flex-shrink-0 bg-white border border-[#e8e3db] rounded-xl p-4 flex flex-col gap-4">
         <div>
-          <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide mb-2">Tool</div>
-          {(['select', 'draw-area', 'add-table'] as Tool[]).map((t) => (
+          <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide mb-2">{t('builder.tool')}</div>
+          {(['select', 'draw-area', 'add-table'] as Tool[]).map((toolOption) => (
             <button
-              key={t}
-              onClick={() => setTool(t)}
+              key={toolOption}
+              onClick={() => setTool(toolOption)}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 transition-colors ${
-                tool === t ? 'bg-[#0f4c3a] text-white' : 'text-[#1c1917] hover:bg-[#f9f7f4]'
+                tool === toolOption ? 'bg-[#0f4c3a] text-white' : 'text-[#1c1917] hover:bg-[#f9f7f4]'
               }`}
             >
-              {t === 'select' ? '↖ Select / Move' : t === 'draw-area' ? '▭ Draw Area' : '▭ Draw Table'}
+              {toolOption === 'select' ? t('builder.toolSelect') : toolOption === 'draw-area' ? t('builder.toolDrawArea') : t('builder.toolDrawTable')}
             </button>
           ))}
         </div>
 
         {tool === 'draw-area' && (
           <div>
-            <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide mb-2">Area Settings</div>
+            <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide mb-2">{t('builder.areaSettings')}</div>
             <input
               type="text"
               value={areaName}
               onChange={(e) => setAreaName(e.target.value)}
-              placeholder="Area name"
+              placeholder={t('builder.areaNamePlaceholder')}
               className="w-full border border-[#e8e3db] rounded px-2 py-1.5 text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-[#0f4c3a]"
             />
             <div className="flex items-center gap-2">
-              <label className="text-xs text-[#78716c]">Color:</label>
+              <label className="text-xs text-[#78716c]">{t('builder.color')}</label>
               <input
                 type="color"
                 value={areaColor}
@@ -463,7 +465,7 @@ export default function LayoutBuilder() {
 
         {tool === 'add-table' && (
           <div>
-            <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide mb-2">Default Capacity</div>
+            <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide mb-2">{t('builder.defaultCapacity')}</div>
             <input
               type="number"
               min={1}
@@ -472,16 +474,16 @@ export default function LayoutBuilder() {
               onChange={(e) => setDefaultCapacity(parseInt(e.target.value, 10))}
               className="w-full border border-[#e8e3db] rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#0f4c3a]"
             />
-            <p className="text-[11px] text-[#a8a29e] mt-1">Drag on canvas to draw a table</p>
+            <p className="text-[11px] text-[#a8a29e] mt-1">{t('builder.drawHint')}</p>
           </div>
         )}
 
         {/* Single non-fused table editing */}
         {singleSelectedTable && (
           <div className="border-t border-[#e8e3db] pt-3 flex flex-col gap-2">
-            <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide">Edit Table</div>
+            <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide">{t('builder.editTable')}</div>
             <div>
-              <label className="text-xs text-[#78716c] block mb-1">Label</label>
+              <label className="text-xs text-[#78716c] block mb-1">{t('builder.label')}</label>
               <input
                 type="text"
                 value={singleSelectedTable.label}
@@ -490,7 +492,7 @@ export default function LayoutBuilder() {
               />
             </div>
             <div>
-              <label className="text-xs text-[#78716c] block mb-1">Capacity</label>
+              <label className="text-xs text-[#78716c] block mb-1">{t('builder.capacity')}</label>
               <input
                 type="number"
                 min={1}
@@ -505,7 +507,7 @@ export default function LayoutBuilder() {
 
         {selectedTableIds.length > 0 && (
           <div className="border-t border-[#e8e3db] pt-3 flex flex-col gap-2">
-            <div className="text-xs text-[#78716c]">{selectedTableIds.length} table(s) selected</div>
+            <div className="text-xs text-[#78716c]">{t('builder.tablesSelected', { count: selectedTableIds.length })}</div>
             {selectedTableIds.length === 1 &&
               floorPlan.tables.find((t) => t.id === selectedTableIds[0])?.isFused && (
               <button
@@ -515,7 +517,7 @@ export default function LayoutBuilder() {
                 }}
                 className="w-full py-1.5 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600"
               >
-                Split Table
+                {t('builder.splitTable')}
               </button>
             )}
             {selectedTableIds.length >= 2 && (
@@ -523,14 +525,14 @@ export default function LayoutBuilder() {
                 onClick={handleJoinTables}
                 className="w-full py-1.5 text-sm bg-amber-500 text-white rounded-lg hover:bg-amber-600"
               >
-                Join Tables
+                {t('builder.joinTables')}
               </button>
             )}
             <button
               onClick={handleDeleteSelected}
               className="w-full py-1.5 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
             >
-              Delete
+              {t('builder.delete')}
             </button>
           </div>
         )}
@@ -540,9 +542,9 @@ export default function LayoutBuilder() {
           if (!selectedArea) return null;
           return (
             <div className="border-t border-[#e8e3db] pt-3 flex flex-col gap-2">
-              <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide">Edit Area</div>
+              <div className="text-xs font-semibold text-[#78716c] uppercase tracking-wide">{t('builder.editArea')}</div>
               <div>
-                <label className="text-xs text-[#78716c] block mb-1">Name</label>
+                <label className="text-xs text-[#78716c] block mb-1">{t('builder.name')}</label>
                 <input
                   type="text"
                   value={selectedArea.name}
@@ -551,7 +553,7 @@ export default function LayoutBuilder() {
                 />
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-xs text-[#78716c]">Color:</label>
+                <label className="text-xs text-[#78716c]">{t('builder.color')}</label>
                 <input
                   type="color"
                   value={selectedArea.color}
@@ -564,7 +566,7 @@ export default function LayoutBuilder() {
                 onClick={handleDeleteSelected}
                 className="w-full py-1.5 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 mt-1"
               >
-                Delete Area
+                {t('builder.deleteArea')}
               </button>
             </div>
           );
@@ -576,7 +578,7 @@ export default function LayoutBuilder() {
             disabled={saveStatus === 'saving'}
             className="w-full py-2 bg-[#0f4c3a] text-white rounded-lg hover:bg-[#1a6b52] text-sm font-medium transition-colors disabled:opacity-50"
           >
-            {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved ✓' : 'Save Layout'}
+            {saveStatus === 'saving' ? t('builder.saving') : saveStatus === 'saved' ? t('builder.saved') : t('builder.saveLayout')}
           </button>
           {saveError && <p className="text-xs text-red-500 mt-1">{saveError}</p>}
         </div>

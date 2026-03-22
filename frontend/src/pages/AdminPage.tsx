@@ -1,12 +1,14 @@
+import { useTranslation } from 'react-i18next';
 import LayoutBuilder from '../components/admin/LayoutBuilder';
 
 export default function AdminPage() {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-4 p-6 flex-1 h-[calc(100vh-57px)]">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Layout Builder</h1>
+        <h1 className="text-2xl font-bold text-slate-800">{t('page.layoutBuilder')}</h1>
         <p className="text-sm text-slate-500 mt-0.5">
-          Draw areas, place tables, and configure your restaurant layout
+          {t('page.layoutBuilderSubtitle')}
         </p>
       </div>
       <div className="flex-1 overflow-hidden">

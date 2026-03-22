@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Table } from '../types/layout';
 import FloorPlan from '../components/floorplan/FloorPlan';
 import FilterBar from '../components/filters/FilterBar';
@@ -9,6 +10,7 @@ import * as layoutApi from '../api/layoutApi';
 import * as reservationApi from '../api/reservationApi';
 
 export default function MainPage() {
+  const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [clickedTableId, setClickedTableId] = useState<number | undefined>();
 
@@ -32,8 +34,8 @@ export default function MainPage() {
   return (
     <div className="flex flex-col gap-4 p-6 flex-1">
       <div>
-        <h1 className="font-display text-3xl font-semibold text-[#1c1917]">Floor Plan</h1>
-        <p className="text-sm text-[#78716c] mt-0.5">View tables and manage reservations</p>
+        <h1 className="font-display text-3xl font-semibold text-[#1c1917]">{t('page.floorPlan')}</h1>
+        <p className="text-sm text-[#78716c] mt-0.5">{t('page.floorPlanSubtitle')}</p>
       </div>
 
       <FilterBar onNewReservation={() => { setClickedTableId(undefined); setDrawerOpen(true); }} />

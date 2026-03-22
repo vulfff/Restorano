@@ -6,7 +6,7 @@ i18n
   .use(HttpBackend)
   .use(initReactI18next)
   .init({
-    lng: localStorage.getItem('restorano-lang') ?? 'en',
+    lng: (typeof localStorage !== 'undefined' ? localStorage.getItem('restorano-lang') : null) ?? 'en',
     fallbackLng: 'en',
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',
@@ -17,7 +17,9 @@ i18n
   });
 
 i18n.on('languageChanged', (lng) => {
-  localStorage.setItem('restorano-lang', lng);
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('restorano-lang', lng);
+  }
 });
 
 export default i18n;

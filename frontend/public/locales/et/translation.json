@@ -113,5 +113,6 @@
   "tableDrawer.errorBookConflict": "See laud on sellel ajal juba broneeritud.",
   "tableDrawer.bookedSuccess": "Reserveering lisatud.",
 
-  "builder.errorDeleteBlocked": "Ei saa kustutada: laudadel {{labels}} on tulevased reserveeringud."
+  "builder.errorDeleteBlocked": "Ei saa kustutada: laudadel {{labels}} on tulevased reserveeringud.",
+  "builder.errorJoinNotAdjacent": "Ühendamiseks peavad lauad külgnema."
 }

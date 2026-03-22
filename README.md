@@ -550,3 +550,20 @@ cd frontend && npm run test:watch  # vitest watch mode
 cd frontend && npm test            # vitest run (üks läbiminek)
 cd frontend && npm run test:watch  # vitest jälgimisrežiim
 ```
+
+
+---
+
+## Reflektsioon
+
+Kokku kulus mul tööks umbes 15 tundi. Kõige rohkem aega kulus vigade leidmisele ja likvideerimisele — neid tekkis arenduse alguses rohkem, kuna kasutatud AI tööriistad andsid valesid väljundeid. Kasutasin Claude Code tööriista koos Sonnet 4.6 mudeliga suurema osa ajast; väiksem osa oli Opus 4.6 mudeliga. Kood on peaaegu kõik Claude'i poolt kirjutatud. Minu sisend oli selgeks teha rakenduse nõuded ja kirja panna vajalikud funktsionaalsused võimalikult detailselt. Samuti pidin mõtlema välja erinevate komponentide vahelise arhitektuuri — näiteks kuidas andmebaasis lauad ja reserveeringud omavahel ühenduses on jne. Kogu rakendus ei valminud samaaegselt, mis tähendas, et kui vahel ideid juurde tekkis, siis lihtsalt sõnastasin Claudeile nii hästi kui võimalik, et ta selle juurde teeks.
+
+> Soovitan siiralt Claude Code'i, eriti erinevate paigaldustega.
+
+**Minu eeldused ülesannet tehes:**
+
+- Laude saab liita ainult kui nad on kõrvuti (takistab kogemata valede laudade liitmist).
+- Laude saab liita ainult siis, kui tulevasi reserveeringuid laudadel pole (ennetab kogemata reserveeringute maha magamist / liiga keerulist rakenduse ülesehitust).
+- Reserveeringuid saab teha otse ilma algoritme kasutamata, kui ka niisama.
+- Reserveeringuid peaks saama ka kustutada/muuta juhul, kui midagi peaks muutuma.
+- Need ja muud mainimata eeldused põhinesid sellel, et "kui ma nüüd töötaks restoranis, mis funktsionaalsusi mul tõenäoliselt vaja läheks"

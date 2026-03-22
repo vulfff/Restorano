@@ -87,6 +87,32 @@ function wouldTableOverlap(candidate: Table, allTables: Table[], excludeId?: num
   );
 }
 
+function tablesAdjacent(a: Table, b: Table): boolean {
+  // Expand a by 1 cell in every direction and check if it touches b
+  return (
+    a.col - 1 < b.col + b.widthCells &&
+    a.col + a.widthCells > b.col - 1 &&
+    a.row - 1 < b.row + b.heightCells &&
+    a.row + a.heightCells > b.row - 1
+  );
+}
+
+function isConnectedGroup(tables: Table[]): boolean {
+  if (tables.length <= 1) return true;
+  const visited = new Set<number>([tables[0].id]);
+  const queue = [tables[0]];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const other of tables) {
+      if (!visited.has(other.id) && tablesAdjacent(current, other)) {
+        visited.add(other.id);
+        queue.push(other);
+      }
+    }
+  }
+  return visited.size === tables.length;
+}
+
 let nextTempId = 1000;
 
 export default function LayoutBuilder() {
@@ -372,6 +398,11 @@ export default function LayoutBuilder() {
   const handleJoinTables = () => {
     const tables = floorPlan.tables.filter((t) => selectedTableIds.includes(t.id));
     if (tables.length < 2) return;
+    if (!isConnectedGroup(tables)) {
+      setOverlapError(t('builder.errorJoinNotAdjacent'));
+      setTimeout(() => setOverlapError(null), 2500);
+      return;
+    }
     const minCol = Math.min(...tables.map((t) => t.col));
     const minRow = Math.min(...tables.map((t) => t.row));
     const maxCol = Math.max(...tables.map((t) => t.col + t.widthCells - 1));

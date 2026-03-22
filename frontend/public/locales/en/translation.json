@@ -113,5 +113,6 @@
   "tableDrawer.errorBookConflict": "This table is already booked for that time.",
   "tableDrawer.bookedSuccess": "Reservation added.",
 
-  "builder.errorDeleteBlocked": "Cannot delete: {{labels}} has future reservations."
+  "builder.errorDeleteBlocked": "Cannot delete: {{labels}} has future reservations.",
+  "builder.errorJoinNotAdjacent": "Tables must be adjacent to join."
 }

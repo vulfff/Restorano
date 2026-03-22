@@ -1,202 +1,328 @@
 # Restorano
 
-A restaurant table reservation management system. Staff see a top-down grid floor plan, filter by date/time/party size/area, book tables with smart recommendations, and view dish suggestions. Admins configure the floor plan layout through a drag-and-draw canvas.
+Restaurant table reservation management web app. Staff can view the floor plan, manage reservations per table, and build the restaurant layout. An AI-assisted recommendation engine suggests the best table for each booking.
 
 ---
 
-## Tech Stack
+## Requirements / Nõuded
+
+| Tool | Version | Install | Check |
+|------|---------|---------|-------|
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | 4.x+ | docker.com | `docker --version` |
+| [Node.js](https://nodejs.org/) | 18+ | nodejs.org | `node --version` |
+| npm | 9+ (ships with Node) | — | `npm --version` |
+| [Git](https://git-scm.com/) | any | git-scm.com | `git --version` |
+
+> Java and PostgreSQL run inside Docker — you do **not** need them installed locally.
+>
+> Java ja PostgreSQL töötavad Dockeri sees — neid **ei pea** lokaalselt installima.
+
+---
+
+## First-Time Setup / Esmakordne seadistamine
+
+### English
+
+**Prerequisites:** see [Requirements](#requirements--nõuded) above.
+
+1. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd Restorano
+   ```
+
+2. **Start the database and backend**
+   ```bash
+   docker compose up -d --build
+   ```
+   This starts PostgreSQL (port 5434) and the Spring Boot API (port 8080).
+   On first boot, Flyway automatically runs all migrations and seeds demo data
+   including a default admin account (`admin` / `admin123`).
+
+3. **Install frontend dependencies**
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+4. **Start the frontend dev server**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+5. **Log in as admin**
+   - Click **Admin Login** in the top navigation.
+   - Username: `admin` / Password: `admin123`
+   - After login you can access the Layout Builder at `/admin`.
+
+> To stop everything: `docker compose down` (add `-v` to also delete the database volume).
+
+---
+
+### Eesti keeles
+
+**Eeltingimused:** vaata eespool olevat [Nõuded](#requirements--nõuded) tabelit.
+
+1. **Klooni repositoorium**
+   ```bash
+   git clone <repo-url>
+   cd Restorano
+   ```
+
+2. **Käivita andmebaas ja backend**
+   ```bash
+   docker compose up -d --build
+   ```
+   See käivitab PostgreSQL-i (port 5434) ja Spring Boot API (port 8080).
+   Esimesel käivitusel rakendab Flyway automaatselt kõik migratsioonid ning loob
+   demoandmed koos vaikimisi adminikontoga (`admin` / `admin123`).
+
+3. **Installi frontendi sõltuvused**
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+4. **Käivita frontendi arendusserver**
+   ```bash
+   npm run dev
+   ```
+   Ava brauseris [http://localhost:5173](http://localhost:5173).
+
+5. **Logi sisse administraatorina**
+   - Klõpsa ülemises navigatsiooniribas **Admin Login**.
+   - Kasutajanimi: `admin` / Parool: `admin123`
+   - Pärast sisselogimist pääsed `/admin` all leiduvasse Paigutusehitajasse.
+
+> Kõige peatamiseks: `docker compose down` (lisa `-v`, kui soovid ka andmebaasi mahu kustutada).
+
+---
+
+## Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS v4, Zustand |
-| Backend | Java 21, Spring Boot 3.x, Flyway, jjwt 0.12, SpringDoc OpenAPI |
-| Database | PostgreSQL 16 |
-| External API | TheMealDB (proxied via `/api/meals/suggest`) |
+| Frontend | React 19, TypeScript, Vite 7, Tailwind CSS v4 |
+| State | Zustand v5, TanStack Query v5 |
+| HTTP | Axios, Vite proxy `/api → :8080` |
+| i18n | i18next — English (`en`) and Estonian (`et`); choice persisted to `localStorage` |
+| Backend | Java 21, Spring Boot 3.x |
+| Auth | JWT (jjwt 0.12.x), Spring Security |
+| Database | PostgreSQL 16, Flyway migrations |
+| API Docs | SpringDoc OpenAPI (`/swagger-ui.html`) |
+| External | TheMealDB (proxied through backend to avoid CORS) |
 
 ---
 
-## Project Structure
+## Quick Start (returning developers)
+
+```bash
+# Start PostgreSQL + backend API
+docker compose up -d --build
+# or live-reload (watches backend/src, pom.xml, Dockerfile):
+docker compose watch
+
+# Start frontend dev server
+cd frontend && npm run dev
+# → http://localhost:5173
+```
+
+---
+
+## Project Layout
 
 ```
 Restorano/
-├── frontend/          # React SPA (Vite)
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── floorplan/     # FloorPlan, TableCell, TableTooltip, TableLegend, AreaRect
-│   │   │   ├── filters/       # FilterBar
-│   │   │   ├── reservation/   # BookingDrawer, RecommendedTables, MealSuggestions
-│   │   │   ├── admin/         # LayoutBuilder, AdminLogin
-│   │   │   └── layout/        # Navbar, AdminGuard
-│   │   ├── store/             # Zustand: layoutStore, filterStore, authStore
-│   │   ├── types/             # layout.ts, reservation.ts, recommendation.ts, meal.ts
-│   │   ├── pages/             # MainPage, AdminPage, LoginPage
-│   │   └── utils/             # scoringUtils.ts, gridUtils.ts
-│   ├── src/api/           # axiosClient, authApi, layoutApi, reservationApi, mealApi
-│   └── package.json
-├── backend/           # Spring Boot REST API
+├── frontend/                     # React + TypeScript SPA
+│   ├── public/locales/           # i18n translation files (en, et)
+│   └── src/
+│       ├── api/                  # Axios API modules
+│       ├── components/
+│       │   ├── admin/            # LayoutBuilder, AdminLogin
+│       │   ├── filters/          # FilterBar
+│       │   ├── floorplan/        # FloorPlan, TableCell, AreaRect, TableTooltip, TableLegend
+│       │   ├── layout/           # Navbar, AdminGuard
+│       │   └── reservation/      # BookingDrawer, TableDrawer, RecommendedTables, MealSuggestions
+│       ├── pages/                # MainPage, AdminPage, LoginPage
+│       ├── store/                # Zustand stores (layout, filter, auth)
+│       ├── types/                # TypeScript type definitions
+│       └── utils/                # scoringUtils, gridUtils
+├── backend/
 │   └── src/main/java/com/restorano/backend/
-│       ├── auth/          # Admin entity, JWT auth
-│       ├── layout/        # FloorPlan, Area, RestaurantTable
-│       ├── reservation/   # Reservation, TableRecommenderService
-│       └── util/          # SecurityConfig, GlobalExceptionHandler, MealDbService
-├── docker-compose.yml # PostgreSQL 16 on port 5434
-└── REQUIREMENTS.md
+│       ├── auth/                 # Admin entity, JWT, AuthController
+│       ├── layout/               # FloorPlan/Area/Table entities, FloorPlanController
+│       ├── reservation/          # Reservation entity, ReservationController, TableRecommenderService
+│       └── util/                 # SecurityConfig, GlobalExceptionHandler, MealDbService
+├── backend/src/main/resources/
+│   ├── application.properties
+│   └── db/migration/             # V1__init_schema.sql, V2__seed_admin.sql, V3__seed_demo_data.sql
+├── docker-compose.yml
+├── PLAN.md                       # Stage-by-stage build progress
+├── CLAUDE.md                     # Agent navigation guide
+└── REQUIREMENTS.md               # Original functional requirements
 ```
-
----
-
-## Prerequisites
-
-| Tool | Version | Check |
-|------|---------|-------|
-| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | 4.x+ | `docker --version` |
-| [Node.js](https://nodejs.org/) | 18+ | `node --version` |
-| npm | 9+ (ships with Node) | `npm --version` |
-
-> Java and PostgreSQL run inside Docker -- you do **not** need them installed locally.
-
----
-
-## Getting Started
-
-### 1. Start the backend + database
-
-```bash
-docker compose up -d --build
-```
-
-This boots PostgreSQL 16 and the Spring Boot API on `http://localhost:8080`. Flyway runs automatically and seeds:
-- the database schema
-- a default **admin account** (`admin` / `admin123`)
-- a demo floor plan with 3 areas, 15 tables, and 10 reservations spread around the current time
-
-For live-reload during backend development:
-```bash
-docker compose watch
-```
-
-### 2. Start the frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open `http://localhost:5173`. The Vite dev server proxies `/api` requests to the backend.
-
-### 3. Log in as admin
-
-Navigate to `/login` and sign in with:
-| Field | Value |
-|-------|-------|
-| Username | `admin` |
-| Password | `admin123` |
-
-This unlocks the **Layout Builder** at `/admin`.
-
-### Frontend only (no backend)
-
-```bash
-cd frontend && npm install && npm run dev
-```
-The floor plan loads empty and API calls fail gracefully.
 
 ---
 
 ## Features
 
-### Staff (no login required)
+### Floor Plan View (`/`)
 
-- **Floor plan view** — top-down grid showing all tables, color-coded by availability
-- **Filter bar** — filter by date/time, party size, and area simultaneously
-- **Hover tooltip** — see upcoming reservations for any table
-- **Booking form** — book a table by clicking it or using the "New Reservation" button
-- **Table recommendations** — enter party size + preferred area to get up to 5 scored suggestions highlighted on the map
-- **Dish suggestions** — search TheMealDB for meal ideas during the booking flow
+- CSS grid renders areas (colored zones) and tables.
+- **Filter bar** — filter by date, time, party size, and area. Table status colors update in real time.
+- **Table status colors:**
 
-### Admin (login required)
+  | Color | Meaning |
+  |-------|---------|
+  | White / grey border | Available |
+  | Muted, 70% opacity | Reserved (overlapping reservation) |
+  | Blue fill | Selected by user |
+  | Amber / pulsing | Recommended by algorithm |
+  | Red tint | Too small for current party size |
 
-- **Layout builder** — drag-draw areas and tables on a grid canvas
-  - Draw named, colored area zones (minimum 2×2 cells, no overlap allowed)
-  - Drag edges/corners to resize areas
-  - Draw tables by dragging; tables constrained to the area they start in
-  - Edit table label and capacity inline when selected
-  - Join multiple tables into one fused table (instant, no modal)
-  - Split fused tables back to their originals
-  - Move tables by dragging
+- **Click any table** — opens **TableDrawer**: view upcoming reservations, inline-edit or delete them, or create a new booking directly for that table.
+- **+ New Reservation** button — opens **BookingDrawer**: enter guest details, get AI-ranked table recommendations, confirm booking.
 
----
+### TableDrawer
 
-## Recommendation Algorithm
+Slide-in panel opened by clicking any table on the floor plan.
 
-Tables are scored when party size and datetime are provided:
+- Lists all upcoming reservations for the table (guest name, party size, date/time, notes).
+- **Inline edit** any reservation (guest name, party size, date, time, notes) — calls `PUT /api/reservations/{id}`.
+- **Delete** any reservation — calls `DELETE /api/reservations/{id}` (admin JWT required).
+- **New booking** form pre-locked to the clicked table — calls `POST /api/reservations`.
+- 409 conflict errors shown inline per row.
+
+### BookingDrawer
+
+Slide-in panel opened from the filter bar "+ New Reservation" button.
+
+- Collects guest details and optional area preference.
+- Calls `POST /api/reservations/recommend` for scored table suggestions.
+- Confirms booking via `POST /api/reservations`.
+
+### Recommendation Algorithm
 
 ```
-efficiencyScore  = 1.0 - (waste / capacity) * 0.8
-  hard cutoff: table capacity > partySize × 2 → eliminated
-areaScore        = 1.0 (preferred area match) | 0.5 (no preference) | 0.0 (mismatch)
+efficiencyScore  = 1.0 − (waste / capacity) × 0.8
+  hard cutoff:  waste > partySize × 2  →  score = 0.0
+areaScore        = 1.0 (match) | 0.5 (no preference) | 0.0 (mismatch)
 finalScore       = efficiencyScore × 0.65 + areaScore × 0.35
 ```
 
-Top 5 results returned, minimum score 0.1.
+Returns top 5, filters score < 0.1. Implemented server-side in `TableRecommenderService.java` and mirrored client-side in `scoringUtils.ts` for preview.
+
+### Admin Layout Builder (`/admin`)
+
+Requires admin JWT. Loads current reservations on mount so table delete/fuse/split safety checks reflect live data.
+
+| Action | How |
+|--------|-----|
+| Draw area | Select "▭ Draw Area" tool → click-drag on grid |
+| Resize area | Click area → drag any of 8 blue handles |
+| Edit area name/color | Click area → sidebar |
+| Delete area | Click area → "Delete Area" in sidebar |
+| Draw table | Select "▭ Draw Table" tool → click-drag inside an area |
+| Edit table label/capacity | Click single table → sidebar |
+| Move table | Drag table |
+| Multi-select | Shift+click additional tables |
+| Join tables | Multi-select 2+ adjacent tables → "Join Tables" |
+| Split fused table | Click fused table → "Split Table" |
+| Delete table(s) | Select → "Delete" |
+| Save | "Save Layout" → atomic `PUT /api/layout` |
+
+Fuse/split/delete are blocked (409) if any affected table has future reservations.
+
+### Internationalisation
+
+Translations loaded at runtime from `/public/locales/{lang}/translation.json`. Language toggled in the UI and persisted to `localStorage` key `restorano-lang`. Supported: **English** (`en`), **Estonian** (`et`).
+
+### Authentication
+
+- `POST /api/auth/login` returns a JWT stored in Zustand (`authStore`) and persisted to `localStorage` key `restorano-auth`.
+- Admin-only endpoints (`PUT /api/layout`, `DELETE /api/reservations/{id}`, `PUT /api/reservations/{id}`) require `Authorization: Bearer <token>`.
 
 ---
 
-## API
+## API Reference
 
 ### Auth
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/auth/signup` | Register admin account |
-| POST | `/api/auth/login` | Login, returns JWT |
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/auth/signup` | — | Register admin account |
+| POST | `/api/auth/login` | — | Returns JWT |
 
 ### Layout
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/api/layout` | None | Full floor plan |
-| PUT | `/api/layout` | Admin | Atomically replace all areas + tables |
+| GET | `/api/layout` | — | Full floor plan (areas + tables) |
+| PUT | `/api/layout` | Admin | Atomically replace all areas + tables in one transaction |
 
 ### Reservations
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/api/reservations` | None | Filter by `date`, `partySize`, `areaId` |
-| POST | `/api/reservations` | None | Create reservation (`tableIds: number[]`) |
-| DELETE | `/api/reservations/{id}` | Admin | Cancel |
-| GET | `/api/reservations/table/{tableId}` | None | Upcoming for a table |
-| POST | `/api/reservations/recommend` | None | Scored recommendations |
+| GET | `/api/reservations` | — | Filter by `date`, `partySize`, `areaId` |
+| POST | `/api/reservations` | — | Create (`tableIds[]`, `startsAt`, `guestName`, `partySize`, `notes?`) |
+| PUT | `/api/reservations/{id}` | Admin | Update guest details / time; 409 on overlap |
+| DELETE | `/api/reservations/{id}` | Admin | Cancel reservation |
+| GET | `/api/reservations/table/{tableId}` | — | Upcoming reservations for a specific table |
+| POST | `/api/reservations/recommend` | — | Scored table recommendations |
 
 ### Meals
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/api/meals/suggest?keyword={q}` | Proxy to TheMealDB |
+| GET | `/api/meals/suggest?keyword={q}` | Proxy to TheMealDB dish search |
+
+Interactive docs: **`/swagger-ui.html`**
 
 ---
 
-## Key Design Decisions
+## Database Schema (Flyway)
 
-**Multi-table reservations** — a single booking can hold multiple tables (`reservation_tables` junction). This handles large-party seating without touching the layout (no time-bound fusion needed).
+| Migration | Contents |
+|-----------|----------|
+| `V1__init_schema.sql` | Full schema: `admins`, `floor_plans`, `areas`, `restaurant_tables`, `reservations`, `reservation_tables` junction, FK cascades, initial floor plan row |
+| `V2__seed_admin.sql` | Default admin account (`admin` / `admin123`, bcrypt) |
+| `V3__seed_demo_data.sql` | 3 areas, 15 tables, 10 time-relative reservations |
 
-**Fuse/split safety** — joining tables is blocked if any constituent table has not-yet-started reservations; splitting is blocked if the fused table has not-yet-started reservations. Ongoing or past reservations do not block layout changes.
+Key design decisions:
 
-**Double-booking prevention** — PostgreSQL `btree_gist` exclusion constraint on `(table_id, tstzrange(starts_at, ends_at))` in `reservation_tables`.
-
-**Reservation window** — always 2.5 hours (`ends_at = starts_at + interval '2.5 hours'`); auto-expired (no manual cleanup needed at query time).
+- Single `floor_plans` row (`id = 1`); `PUT /api/layout` replaces all areas/tables atomically.
+- Fused tables: stored as a new record (`is_fused = true`); constituent tables get `parent_fused_id` set and are hidden from renders.
+- Multi-table reservations via `reservation_tables` junction (a booking can span multiple tables).
+- Double-booking prevented application-side via `ReservationRepository.existsOverlap()`.
+- `ends_at = starts_at + 2.5 h` stored at creation; availability queries filter `WHERE ends_at > now()`.
+- `ON DELETE CASCADE` on `reservation_tables.table_id` — deleting a table cleans up its junction rows.
 
 ---
 
-## Build Status
+## Development Notes
 
-| Stage | Status |
-|-------|--------|
-| Stage 1 — Frontend (mock data) | ✅ Complete |
-| Stage 2 — Backend core | ✅ Complete |
-| Stage 3 — API integration | ✅ Complete |
-| Stage 4 — Polish | 🔶 Partial (Flyway + OpenAPI done) |
+### Grid System
+
+- Cell size: **60 × 60 px**
+- Row/column indices are **1-based**
+- Areas use absolute pixel positioning; tables use CSS `gridColumn: col / span w` + `gridRow: row / span h`
+
+### Frontend Stores
+
+| Store | Purpose |
+|-------|---------|
+| `layoutStore` | Floor plan state, reservation list, computed table statuses |
+| `filterStore` | Filter bar state (date, time, party size, area) |
+| `authStore` | JWT token + admin flag, persisted to `localStorage` |
+
+### Running Tests
+
+```bash
+cd frontend && npm test            # vitest run (single pass)
+cd frontend && npm run test:watch  # vitest watch mode
+```
 
 ---
 
@@ -212,10 +338,15 @@ Restorano on restorani lauabroneeringute haldamise veebirakendus. Töötajad nä
 docker compose up -d --build
 ```
 
-See käivitab PostgreSQL 16 ja Spring Boot API aadressil `http://localhost:8080`. Flyway migratsioone käitatakse automaatselt ja seemnendatakse:
+See käivitab PostgreSQL 16 ja Spring Boot API aadressil `http://localhost:8080`. Flyway migratsioonid käitatakse automaatselt ja seemnendatakse:
 - andmebaasi skeem
 - vaikimisi **administraatori konto** (`admin` / `admin123`)
 - demo põhiplaan 3 alaga, 15 lauaga ja 10 reserveeringuga praeguse aja ümber
+
+Backendi live-reload arenduse ajal:
+```bash
+docker compose watch
+```
 
 **2. Käivita kasutajaliides:**
 
@@ -243,7 +374,8 @@ See avab **Paigutuse kujundaja** aadressil `/admin`.
 - **Põhiplaani vaade** — kõik lauad, värvikoodiga saadavuse järgi
 - **Filtreerimine** — filtreeri kuupäeva/kellaaja, seltskonna suuruse ja ala järgi
 - **Hõljutuse kokkuvõte** — vaata iga laua eelseisvaid reserveeringuid
-- **Broneerimise vorm** — broneeri laud tabeli klõpsamisega või "Uus reserveering" nupuga
+- **Lauainfo paneel** — klõpsa laual, et näha kõiki eelseisvaid broneeringuid, neid kohapeal muuta/kustutada või uut broneeringut lisada
+- **Broneerimise vorm** — broneeri laud nupu "Uus reserveering" kaudu
 - **Laua soovitused** — sisesta seltskonna suurus + eelistatud ala kuni 5 hinnatud ettepaneku saamiseks
 - **Roa soovitused** — otsi TheMealDB kaudu roogade ideid broneerimise käigus
 
@@ -251,9 +383,10 @@ See avab **Paigutuse kujundaja** aadressil `/admin`.
 
 - **Paigutuse kujundaja** — joonista alad ja lauad ruudustiku lõuendil
   - Joonista nimega, värvitud alad (minimaalselt 2×2 lahtrit, kattumist ei lubata)
-  - Muuda alasid suurust lohistades
+  - Muuda alade suurust lohistades servi või nurki
   - Joonista lauad lohistades; lauad piiratakse algusalaga
   - Muuda laua silti ja mahtu kohapealt, kui valitud
   - Ühenda mitu lauda üheks (kohene, ilma modaalita)
   - Eralda ühendatud lauad tagasi algseteks
   - Liiguta laudu lohistades
+  - Kustutamine/ühendamine/eralda on blokeeritud (409), kui mõjutatud laudadel on tulevasi reserveeringuid

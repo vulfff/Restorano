@@ -1,8 +1,8 @@
 # Restorano
 
-Restaurant table reservation management web app. Staff can view the floor plan, manage reservations per table, and build the restaurant layout. An AI-assisted recommendation engine suggests the best table for each booking.
+Restaurant table reservation management web app. Staff can view the floor plan, manage reservations per table, and build the restaurant layout. A scoring algorithm suggests the best table for each booking.
 
-Restorani lauabroneeringute haldamise veebirakendus. Töötajad näevad restorani põhiplaani, haldavad broneeringuid laua kaupa ja kujundavad restorani paigutust. AI-põhine soovitusalgoritm pakub iga broneeringu jaoks parima laua.
+Restorani lauabroneeringute haldamise veebirakendus. Töötajad näevad restorani põhiplaani, haldavad broneeringuid laua kaupa ja kujundavad restorani paigutust. Skoorimisalgoritm pakub iga broneeringu jaoks parima laua.
 
 ---
 
@@ -250,7 +250,7 @@ Restorano/
   | Red tint | Too small for current party size |
 
 - **Click any table** — opens **TableDrawer**: view upcoming reservations, inline-edit or delete them, or create a new booking directly for that table.
-- **+ New Reservation** button — opens **BookingDrawer**: enter guest details, get AI-ranked table recommendations, confirm booking.
+- **+ New Reservation** button — opens **BookingDrawer**: enter guest details, get scored table recommendations, confirm booking.
 
 #### TableDrawer
 
@@ -328,7 +328,7 @@ Translations loaded at runtime from `/public/locales/{lang}/translation.json`. L
   | Punane toon | Liiga väike praeguse seltskonna suuruse jaoks |
 
 - **Klõpsa suvalise laua peal** — avaneb **TableDrawer**: vaata eelseisvaid broneeringuid, muuda neid kohapeal või kustuta, või loo uus broneering otse sellele lauale.
-- **Nupp "+ Uus reserveering"** — avab **BookingDrawer**: sisesta külalise andmed, saa AI-reastatud lauasoovitused, kinnita broneering.
+- **Nupp "+ Uus reserveering"** — avab **BookingDrawer**: sisesta külalise andmed, saa hinnastatud lauasoovitused, kinnita broneering.
 
 #### TableDrawer (lauapaneel)
 

@@ -1,5 +1,6 @@
 import type { ScoredTable } from '../../types/recommendation';
 import { useLayoutStore } from '../../store/layoutStore';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   scored: ScoredTable[];
@@ -9,6 +10,7 @@ interface Props {
 
 export default function RecommendedTables({ scored, onSelect, selectedTableId }: Props) {
   const { floorPlan } = useLayoutStore();
+  const { t } = useTranslation();
 
   const getAreaName = (areaId: number | null) => {
     if (!areaId) return 'No area';
@@ -20,7 +22,7 @@ export default function RecommendedTables({ scored, onSelect, selectedTableId }:
   return (
     <div className="mt-3">
       <div className="font-display text-sm font-semibold text-[#78716c] tracking-wide mb-2">
-        Recommended Tables
+        {t('recommend.title')}
       </div>
       <div className="flex flex-col gap-2">
         {scored.map((st, i) => (
@@ -48,10 +50,10 @@ export default function RecommendedTables({ scored, onSelect, selectedTableId }:
             <div className="text-xs text-[#78716c] mt-1 ml-8">{st.reason}</div>
             <div className="flex gap-3 mt-1.5 ml-8">
               <div className="text-[10px] text-[#a8a29e]">
-                Fit: <span className="text-[#78716c]">{Math.round(st.efficiencyScore * 100)}%</span>
+                {t('recommend.fit')}: <span className="text-[#78716c]">{Math.round(st.efficiencyScore * 100)}%</span>
               </div>
               <div className="text-[10px] text-[#a8a29e]">
-                Area: <span className="text-[#78716c]">{Math.round(st.areaPreferenceScore * 100)}%</span>
+                {t('recommend.area')}: <span className="text-[#78716c]">{Math.round(st.areaPreferenceScore * 100)}%</span>
               </div>
             </div>
           </button>

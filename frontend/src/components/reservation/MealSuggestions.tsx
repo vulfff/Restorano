@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { MealSummary } from '../../types/meal';
 import * as mealApi from '../../api/mealApi';
+import { useTranslation } from 'react-i18next';
 
 const SEED_KEYWORDS = ['chicken', 'pasta', 'beef', 'salmon', 'soup'];
 
@@ -8,6 +9,7 @@ export default function MealSuggestions() {
   const [keyword, setKeyword] = useState('');
   const [meals, setMeals] = useState<MealSummary[]>([]);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const seed = SEED_KEYWORDS[Math.floor(Math.random() * SEED_KEYWORDS.length)];
@@ -32,12 +34,12 @@ export default function MealSuggestions() {
   return (
     <div className="mt-4 border-t pt-4">
       <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
-        Dish Suggestions (optional)
+        {t('meals.title')}
       </div>
       <div className="flex gap-2">
         <input
           type="text"
-          placeholder="e.g. pasta, chicken..."
+          placeholder={t('meals.placeholder')}
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -48,7 +50,7 @@ export default function MealSuggestions() {
           disabled={loading}
           className="px-3 py-1.5 text-sm bg-slate-100 border border-slate-300 rounded-lg hover:bg-slate-200 transition-colors disabled:opacity-50"
         >
-          {loading ? '...' : 'Search'}
+          {loading ? '...' : t('meals.search')}
         </button>
       </div>
 

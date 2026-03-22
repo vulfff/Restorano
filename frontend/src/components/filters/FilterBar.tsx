@@ -1,5 +1,6 @@
 import { useFilterStore } from '../../store/filterStore';
 import { useLayoutStore } from '../../store/layoutStore';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   onNewReservation: () => void;
@@ -8,12 +9,13 @@ interface Props {
 export default function FilterBar({ onNewReservation }: Props) {
   const { date, time, partySize, areaId, setDate, setTime, setPartySize, setAreaId, reset } = useFilterStore();
   const { floorPlan } = useLayoutStore();
+  const { t } = useTranslation();
 
   return (
     <div className="bg-white border border-[#e8e3db] rounded-xl p-4 flex flex-wrap gap-3 items-end">
       {/* Date */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium uppercase tracking-wide text-[#78716c]">Date</label>
+        <label className="text-xs font-medium uppercase tracking-wide text-[#78716c]">{t('filter.date')}</label>
         <input
           type="date"
           value={date}
@@ -24,7 +26,7 @@ export default function FilterBar({ onNewReservation }: Props) {
 
       {/* Time */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium uppercase tracking-wide text-[#78716c]">Time</label>
+        <label className="text-xs font-medium uppercase tracking-wide text-[#78716c]">{t('filter.time')}</label>
         <input
           type="time"
           value={time}
@@ -35,12 +37,12 @@ export default function FilterBar({ onNewReservation }: Props) {
 
       {/* Party size */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium uppercase tracking-wide text-[#78716c]">Party size</label>
+        <label className="text-xs font-medium uppercase tracking-wide text-[#78716c]">{t('filter.partySize')}</label>
         <input
           type="number"
           min={1}
           max={20}
-          placeholder="Any"
+          placeholder={t('filter.partySizePlaceholder')}
           value={partySize}
           onChange={(e) => setPartySize(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
           className="border border-[#e8e3db] rounded-lg px-3 py-2 text-sm w-24 focus:outline-none focus:ring-2 focus:ring-[#0f4c3a]"
@@ -49,13 +51,13 @@ export default function FilterBar({ onNewReservation }: Props) {
 
       {/* Area */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium uppercase tracking-wide text-[#78716c]">Area</label>
+        <label className="text-xs font-medium uppercase tracking-wide text-[#78716c]">{t('filter.area')}</label>
         <select
           value={areaId}
           onChange={(e) => setAreaId(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
           className="border border-[#e8e3db] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f4c3a]"
         >
-          <option value="">All areas</option>
+          <option value="">{t('filter.allAreas')}</option>
           {floorPlan.areas.map((area) => (
             <option key={area.id} value={area.id}>{area.name}</option>
           ))}
@@ -68,13 +70,13 @@ export default function FilterBar({ onNewReservation }: Props) {
           onClick={reset}
           className="px-4 py-2 text-sm text-[#78716c] border border-[#e8e3db] rounded-lg hover:bg-[#f9f7f4] transition-colors"
         >
-          Reset
+          {t('filter.reset')}
         </button>
         <button
           onClick={onNewReservation}
           className="px-4 py-2 text-sm font-medium bg-[#0f4c3a] text-white rounded-lg hover:bg-[#1a6b52] transition-colors"
         >
-          + New Reservation
+          {t('filter.newReservation')}
         </button>
       </div>
     </div>

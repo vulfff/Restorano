@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import * as authApi from '../../api/authApi';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -10,6 +11,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuthStore();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +25,9 @@ export default function AdminLogin() {
       // Axios 401 means wrong credentials
       const axiosErr = err as { response?: { status?: number } };
       if (axiosErr?.response?.status === 401) {
-        setError('Invalid username or password.');
+        setError(t('login.errorInvalid'));
       } else {
-        setError('Login failed. Please try again.');
+        setError(t('login.errorGeneric'));
       }
     } finally {
       setLoading(false);
@@ -37,12 +39,12 @@ export default function AdminLogin() {
       <div className="bg-white rounded-2xl border border-[#e8e3db] shadow-md p-8 w-full max-w-sm">
         <div className="text-center mb-7">
           <div className="font-display text-4xl font-semibold text-[#1c1917]">Restorano</div>
-          <div className="text-[#78716c] text-sm mt-1">Admin Login</div>
+          <div className="text-[#78716c] text-sm mt-1">{t('login.subtitle')}</div>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="text-xs font-medium text-[#78716c] block mb-1">Username</label>
+            <label className="text-xs font-medium text-[#78716c] block mb-1">{t('login.username')}</label>
             <input
               type="text"
               value={username}
@@ -52,7 +54,7 @@ export default function AdminLogin() {
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-[#78716c] block mb-1">Password</label>
+            <label className="text-xs font-medium text-[#78716c] block mb-1">{t('login.password')}</label>
             <input
               type="password"
               value={password}
@@ -68,7 +70,7 @@ export default function AdminLogin() {
             disabled={loading}
             className="py-3 bg-[#0f4c3a] text-white rounded-lg font-semibold hover:bg-[#1a6b52] transition-colors disabled:opacity-50 mt-1"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t('login.submitting') : t('login.submit')}
           </button>
         </form>
       </div>

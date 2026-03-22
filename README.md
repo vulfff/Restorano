@@ -45,29 +45,62 @@ Restorano/
 
 ---
 
+## Prerequisites
+
+| Tool | Version | Check |
+|------|---------|-------|
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | 4.x+ | `docker --version` |
+| [Node.js](https://nodejs.org/) | 18+ | `node --version` |
+| npm | 9+ (ships with Node) | `npm --version` |
+
+> Java and PostgreSQL run inside Docker -- you do **not** need them installed locally.
+
+---
+
 ## Getting Started
 
-### Full stack (recommended)
+### 1. Start the backend + database
 
 ```bash
-docker compose up -d --build      # start PostgreSQL + backend API on :8080
-# OR use live-reload (watches backend/src for changes):
-docker compose watch
-
-# Seed admin account (one-time):
-curl -X POST http://localhost:8080/api/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin","email":"admin@restorano.com","password":"secret"}'
-
-cd frontend && npm run dev         # → http://localhost:5173 (proxies /api → :8080)
+docker compose up -d --build
 ```
+
+This boots PostgreSQL 16 and the Spring Boot API on `http://localhost:8080`. Flyway runs automatically and seeds:
+- the database schema
+- a default **admin account** (`admin` / `admin123`)
+- a demo floor plan with 3 areas, 15 tables, and 10 reservations spread around the current time
+
+For live-reload during backend development:
+```bash
+docker compose watch
+```
+
+### 2. Start the frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. The Vite dev server proxies `/api` requests to the backend.
+
+### 3. Log in as admin
+
+Navigate to `/login` and sign in with:
+| Field | Value |
+|-------|-------|
+| Username | `admin` |
+| Password | `admin123` |
+
+This unlocks the **Layout Builder** at `/admin`.
 
 ### Frontend only (no backend)
 
 ```bash
 cd frontend && npm install && npm run dev
-# → http://localhost:5173 (floor plan loads empty; all API calls fail gracefully)
 ```
+The floor plan loads empty and API calls fail gracefully.
 
 ---
 
@@ -164,3 +197,63 @@ Top 5 results returned, minimum score 0.1.
 | Stage 2 — Backend core | ✅ Complete |
 | Stage 3 — API integration | ✅ Complete |
 | Stage 4 — Polish | 🔶 Partial (Flyway + OpenAPI done) |
+
+---
+
+## Eesti keeles
+
+Restorano on restorani lauabroneeringute haldamise veebirakendus. Töötajad näevad restorani põhiplaani ruudustiku vaates, filtreerivad laudu kuupäeva, kellaaja, seltskonna suuruse ja ala järgi, broneerivad laudu arukate soovitustega ning vaatavad roa ettepanekuid. Administraatorid konfigureerivad restorani põhiplaani paigutust lohistamise-ja-joonistamise lõuendil.
+
+### Käivitamine
+
+**1. Käivita taustsüsteem ja andmebaas:**
+
+```bash
+docker compose up -d --build
+```
+
+See käivitab PostgreSQL 16 ja Spring Boot API aadressil `http://localhost:8080`. Flyway migratsioone käitatakse automaatselt ja seemnendatakse:
+- andmebaasi skeem
+- vaikimisi **administraatori konto** (`admin` / `admin123`)
+- demo põhiplaan 3 alaga, 15 lauaga ja 10 reserveeringuga praeguse aja ümber
+
+**2. Käivita kasutajaliides:**
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Ava `http://localhost:5173`.
+
+**3. Logi sisse administraatorina:**
+
+| Väli | Väärtus |
+|------|---------|
+| Kasutajanimi | `admin` |
+| Parool | `admin123` |
+
+See avab **Paigutuse kujundaja** aadressil `/admin`.
+
+### Funktsioonid
+
+**Töötajatele (sisselogimist pole vaja):**
+
+- **Põhiplaani vaade** — kõik lauad, värvikoodiga saadavuse järgi
+- **Filtreerimine** — filtreeri kuupäeva/kellaaja, seltskonna suuruse ja ala järgi
+- **Hõljutuse kokkuvõte** — vaata iga laua eelseisvaid reserveeringuid
+- **Broneerimise vorm** — broneeri laud tabeli klõpsamisega või "Uus reserveering" nupuga
+- **Laua soovitused** — sisesta seltskonna suurus + eelistatud ala kuni 5 hinnatud ettepaneku saamiseks
+- **Roa soovitused** — otsi TheMealDB kaudu roogade ideid broneerimise käigus
+
+**Administraatoritele (sisselogimine vajalik):**
+
+- **Paigutuse kujundaja** — joonista alad ja lauad ruudustiku lõuendil
+  - Joonista nimega, värvitud alad (minimaalselt 2×2 lahtrit, kattumist ei lubata)
+  - Muuda alasid suurust lohistades
+  - Joonista lauad lohistades; lauad piiratakse algusalaga
+  - Muuda laua silti ja mahtu kohapealt, kui valitud
+  - Ühenda mitu lauda üheks (kohene, ilma modaalita)
+  - Eralda ühendatud lauad tagasi algseteks
+  - Liiguta laudu lohistades

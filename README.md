@@ -2,6 +2,8 @@
 
 Restaurant table reservation management web app. Staff can view the floor plan, manage reservations per table, and build the restaurant layout. An AI-assisted recommendation engine suggests the best table for each booking.
 
+Restorani lauabroneeringute haldamise veebirakendus. Töötajad näevad restorani põhiplaani, haldavad broneeringuid laua kaupa ja kujundavad restorani paigutust. AI-põhine soovitusalgoritm pakub iga broneeringu jaoks parima laua.
+
 ---
 
 ## Requirements / Nõuded
@@ -58,8 +60,6 @@ Restaurant table reservation management web app. Staff can view the floor plan, 
 
 > To stop everything: `docker compose down` (add `-v` to also delete the database volume).
 
----
-
 ### Eesti keeles
 
 **Eeltingimused:** vaata eespool olevat [Nõuded](#requirements--nõuded) tabelit.
@@ -99,7 +99,9 @@ Restaurant table reservation management web app. Staff can view the floor plan, 
 
 ---
 
-## Stack
+## Stack / Tehnoloogiad
+
+### English
 
 | Layer | Technology |
 |-------|-----------|
@@ -113,9 +115,25 @@ Restaurant table reservation management web app. Staff can view the floor plan, 
 | API Docs | SpringDoc OpenAPI (`/swagger-ui.html`) |
 | External | TheMealDB (proxied through backend to avoid CORS) |
 
+### Eesti keeles
+
+| Kiht | Tehnoloogia |
+|------|------------|
+| Kasutajaliides | React 19, TypeScript, Vite 7, Tailwind CSS v4 |
+| Olek | Zustand v5, TanStack Query v5 |
+| HTTP | Axios, Vite puhverserver `/api → :8080` |
+| Tõlkimine (i18n) | i18next — inglise (`en`) ja eesti (`et`); valik salvestatakse `localStorage`'i |
+| Backend | Java 21, Spring Boot 3.x |
+| Autentimine | JWT (jjwt 0.12.x), Spring Security |
+| Andmebaas | PostgreSQL 16, Flyway migratsioonid |
+| API dokumentatsioon | SpringDoc OpenAPI (`/swagger-ui.html`) |
+| Välisliidend | TheMealDB (puhverstatakse läbi backendi CORS-i vältimiseks) |
+
 ---
 
-## Quick Start (returning developers)
+## Quick Start / Kiire alustamine
+
+### English
 
 ```bash
 # Start PostgreSQL + backend API
@@ -128,9 +146,24 @@ cd frontend && npm run dev
 # → http://localhost:5173
 ```
 
+### Eesti keeles
+
+```bash
+# Käivita PostgreSQL + backend API
+docker compose up -d --build
+# või live-reload (jälgib backend/src, pom.xml, Dockerfile):
+docker compose watch
+
+# Käivita frontendi arendusserver
+cd frontend && npm run dev
+# → http://localhost:5173
+```
+
 ---
 
-## Project Layout
+## Project Layout / Projekti struktuur
+
+### English
 
 ```
 Restorano/
@@ -163,11 +196,46 @@ Restorano/
 └── REQUIREMENTS.md               # Original functional requirements
 ```
 
+### Eesti keeles
+
+```
+Restorano/
+├── frontend/                     # React + TypeScript SPA
+│   ├── public/locales/           # i18n tõlkefailid (en, et)
+│   └── src/
+│       ├── api/                  # Axios API moodulid
+│       ├── components/
+│       │   ├── admin/            # LayoutBuilder, AdminLogin
+│       │   ├── filters/          # FilterBar
+│       │   ├── floorplan/        # FloorPlan, TableCell, AreaRect, TableTooltip, TableLegend
+│       │   ├── layout/           # Navbar, AdminGuard
+│       │   └── reservation/      # BookingDrawer, TableDrawer, RecommendedTables, MealSuggestions
+│       ├── pages/                # MainPage, AdminPage, LoginPage
+│       ├── store/                # Zustand salvestused (paigutus, filter, auth)
+│       ├── types/                # TypeScript tüübimääratused
+│       └── utils/                # scoringUtils, gridUtils
+├── backend/
+│   └── src/main/java/com/restorano/backend/
+│       ├── auth/                 # Admini olem, JWT, AuthController
+│       ├── layout/               # FloorPlan/Area/Table olemid, FloorPlanController
+│       ├── reservation/          # Reservation olem, ReservationController, TableRecommenderService
+│       └── util/                 # SecurityConfig, GlobalExceptionHandler, MealDbService
+├── backend/src/main/resources/
+│   ├── application.properties
+│   └── db/migration/             # V1__init_schema.sql, V2__seed_admin.sql, V3__seed_demo_data.sql
+├── docker-compose.yml
+├── PLAN.md                       # Etapiviisilise ehituse edenemise jälgija
+├── CLAUDE.md                     # Agendi navigeerimise juhend
+└── REQUIREMENTS.md               # Algsed funktsionaalsed nõuded
+```
+
 ---
 
-## Features
+## Features / Funktsioonid
 
-### Floor Plan View (`/`)
+### English
+
+#### Floor Plan View (`/`)
 
 - CSS grid renders areas (colored zones) and tables.
 - **Filter bar** — filter by date, time, party size, and area. Table status colors update in real time.
@@ -184,7 +252,7 @@ Restorano/
 - **Click any table** — opens **TableDrawer**: view upcoming reservations, inline-edit or delete them, or create a new booking directly for that table.
 - **+ New Reservation** button — opens **BookingDrawer**: enter guest details, get AI-ranked table recommendations, confirm booking.
 
-### TableDrawer
+#### TableDrawer
 
 Slide-in panel opened by clicking any table on the floor plan.
 
@@ -194,7 +262,7 @@ Slide-in panel opened by clicking any table on the floor plan.
 - **New booking** form pre-locked to the clicked table — calls `POST /api/reservations`.
 - 409 conflict errors shown inline per row.
 
-### BookingDrawer
+#### BookingDrawer
 
 Slide-in panel opened from the filter bar "+ New Reservation" button.
 
@@ -202,7 +270,7 @@ Slide-in panel opened from the filter bar "+ New Reservation" button.
 - Calls `POST /api/reservations/recommend` for scored table suggestions.
 - Confirms booking via `POST /api/reservations`.
 
-### Recommendation Algorithm
+#### Recommendation Algorithm
 
 ```
 efficiencyScore  = 1.0 − (waste / capacity) × 0.8
@@ -213,7 +281,7 @@ finalScore       = efficiencyScore × 0.65 + areaScore × 0.35
 
 Returns top 5, filters score < 0.1. Implemented server-side in `TableRecommenderService.java` and mirrored client-side in `scoringUtils.ts` for preview.
 
-### Admin Layout Builder (`/admin`)
+#### Admin Layout Builder (`/admin`)
 
 Requires admin JWT. Loads current reservations on mount so table delete/fuse/split safety checks reflect live data.
 
@@ -234,34 +302,114 @@ Requires admin JWT. Loads current reservations on mount so table delete/fuse/spl
 
 Fuse/split/delete are blocked (409) if any affected table has future reservations.
 
-### Internationalisation
+#### Internationalisation
 
 Translations loaded at runtime from `/public/locales/{lang}/translation.json`. Language toggled in the UI and persisted to `localStorage` key `restorano-lang`. Supported: **English** (`en`), **Estonian** (`et`).
 
-### Authentication
+#### Authentication
 
 - `POST /api/auth/login` returns a JWT stored in Zustand (`authStore`) and persisted to `localStorage` key `restorano-auth`.
 - Admin-only endpoints (`PUT /api/layout`, `DELETE /api/reservations/{id}`, `PUT /api/reservations/{id}`) require `Authorization: Bearer <token>`.
 
+### Eesti keeles
+
+#### Põhiplaani vaade (`/`)
+
+- CSS ruudustik kuvab alad (värvitud tsoonid) ja lauad.
+- **Filtribaan** — filtreeri kuupäeva, kellaaja, seltskonna suuruse ja ala järgi. Laudade olekuvärvid uuenevad reaalajas.
+- **Laudade olekuvärvid:**
+
+  | Värv | Tähendus |
+  |------|----------|
+  | Valge / hall äär | Vaba |
+  | Tuhm, 70% läbipaistvus | Broneeritud (kattuv reserveering) |
+  | Sinine täidis | Kasutaja valitud |
+  | Merevaiguvärv / pulseeriv | Algoritmi soovitus |
+  | Punane toon | Liiga väike praeguse seltskonna suuruse jaoks |
+
+- **Klõpsa suvalise laua peal** — avaneb **TableDrawer**: vaata eelseisvaid broneeringuid, muuda neid kohapeal või kustuta, või loo uus broneering otse sellele lauale.
+- **Nupp "+ Uus reserveering"** — avab **BookingDrawer**: sisesta külalise andmed, saa AI-reastatud lauasoovitused, kinnita broneering.
+
+#### TableDrawer (lauapaneel)
+
+Sisselibisev paneel, mis avaneb klõpsates põhiplaani laua peal.
+
+- Loetleb kõik laua eelseisvad reserveeringud (külalise nimi, seltskonna suurus, kuupäev/kellaaeg, märkmed).
+- **Kohapealne muutmine** — muuda külalise nime, seltskonna suurust, kuupäeva, kellaaega, märkmeid — kutsub `PUT /api/reservations/{id}`.
+- **Kustutamine** — kustuta reserveering — kutsub `DELETE /api/reservations/{id}` (nõuab admin JWT-d).
+- **Uue broneeringu** vorm on eelnevalt lukustatud klõpsatud laua külge — kutsub `POST /api/reservations`.
+- 409 konfliktvead kuvatakse kohapeal iga rea juures.
+
+#### BookingDrawer (broneerimispaneel)
+
+Sisselibisev paneel, mis avaneb filtribaari nupust "+ Uus reserveering".
+
+- Kogub külalise andmed ja vabatahtliku ala eelistuse.
+- Kutsub `POST /api/reservations/recommend` hinnastatud lauasoovituste saamiseks.
+- Kinnitab broneeringu läbi `POST /api/reservations`.
+
+#### Soovitusalgoritm
+
+```
+tõhususskoor  = 1,0 − (raiskamine / mahtuvus) × 0,8
+  kõva piir:  raiskamine > seltskonnaSuurus × 2  →  skoor = 0,0
+alaskoor      = 1,0 (sobib) | 0,5 (eelistust pole) | 0,0 (ei sobi)
+lõplikSkoor   = tõhususskoor × 0,65 + alaskoor × 0,35
+```
+
+Tagastab 5 parimat, filtreerib skoori < 0,1. Rakendatud serveris `TableRecommenderService.java`-s ja peegeldatud kliendiosas `scoringUtils.ts`-is eelvaatamiseks.
+
+#### Administraatori paigutusehitaja (`/admin`)
+
+Nõuab admin JWT-d. Laadib käivitumisel kehtivad reserveeringud, et laua kustutamise/ühendamise/eraldamise ohutuskontrollid kajastaksid reaalajas andmeid.
+
+| Toiming | Kuidas |
+|---------|--------|
+| Joonista ala | Vali tööriist "▭ Draw Area" → klõpsa-lohista ruudustikul |
+| Muuda ala suurust | Klõpsa alal → lohista mõnda 8-st sinisest pidemest |
+| Muuda ala nime/värvi | Klõpsa alal → külgriba |
+| Kustuta ala | Klõpsa alal → "Delete Area" külgribal |
+| Joonista laud | Vali tööriist "▭ Draw Table" → klõpsa-lohista ala sees |
+| Muuda laua silti/mahtu | Klõpsa üksikladual → külgriba |
+| Liiguta lauda | Lohista lauda |
+| Mitmik-valimine | Shift+klõps lisatavatel laudadel |
+| Ühenda lauad | Vali 2+ kõrvutiasetsevat lauda → "Join Tables" |
+| Eralda ühendatud laud | Klõpsa ühendatud laual → "Split Table" |
+| Kustuta laud/lauad | Vali → "Delete" |
+| Salvesta | "Save Layout" → aatomne `PUT /api/layout` |
+
+Ühendamine/eralda/kustutamine on blokeeritud (409), kui mõjutatud laudadel on tulevasi reserveeringuid.
+
+#### Rahvusvahelistumine (i18n)
+
+Tõlked laaditakse käitusajal failist `/public/locales/{lang}/translation.json`. Keelt saab lülitada kasutajaliideses ja see salvestatakse `localStorage` võtme `restorano-lang` alla. Toetatud: **inglise** (`en`), **eesti** (`et`).
+
+#### Autentimine
+
+- `POST /api/auth/login` tagastab JWT, mis salvestatakse Zustandis (`authStore`) ja püsivalt `localStorage` võtme `restorano-auth` alla.
+- Ainult administraatorile mõeldud lõpp-punktid (`PUT /api/layout`, `DELETE /api/reservations/{id}`, `PUT /api/reservations/{id}`) nõuavad `Authorization: Bearer <token>`.
+
 ---
 
-## API Reference
+## API Reference / API-viide
 
-### Auth
+### English
+
+#### Auth
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | POST | `/api/auth/signup` | — | Register admin account |
 | POST | `/api/auth/login` | — | Returns JWT |
 
-### Layout
+#### Layout
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | GET | `/api/layout` | — | Full floor plan (areas + tables) |
 | PUT | `/api/layout` | Admin | Atomically replace all areas + tables in one transaction |
 
-### Reservations
+#### Reservations
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
@@ -272,7 +420,7 @@ Translations loaded at runtime from `/public/locales/{lang}/translation.json`. L
 | GET | `/api/reservations/table/{tableId}` | — | Upcoming reservations for a specific table |
 | POST | `/api/reservations/recommend` | — | Scored table recommendations |
 
-### Meals
+#### Meals
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -280,9 +428,46 @@ Translations loaded at runtime from `/public/locales/{lang}/translation.json`. L
 
 Interactive docs: **`/swagger-ui.html`**
 
+### Eesti keeles
+
+#### Autentimine
+
+| Meetod | Tee | Auth | Kirjeldus |
+|--------|-----|------|-----------|
+| POST | `/api/auth/signup` | — | Registreeri adminikonto |
+| POST | `/api/auth/login` | — | Tagastab JWT |
+
+#### Paigutus
+
+| Meetod | Tee | Auth | Kirjeldus |
+|--------|-----|------|-----------|
+| GET | `/api/layout` | — | Täielik põhiplaan (alad + lauad) |
+| PUT | `/api/layout` | Admin | Asendab aatomselt kõik alad + lauad ühes tehingus |
+
+#### Reserveeringud
+
+| Meetod | Tee | Auth | Kirjeldus |
+|--------|-----|------|-----------|
+| GET | `/api/reservations` | — | Filtreeri `date`, `partySize`, `areaId` järgi |
+| POST | `/api/reservations` | — | Loo (`tableIds[]`, `startsAt`, `guestName`, `partySize`, `notes?`) |
+| PUT | `/api/reservations/{id}` | Admin | Uuenda külalise andmeid/aega; 409 kattumise korral |
+| DELETE | `/api/reservations/{id}` | Admin | Tühista reserveering |
+| GET | `/api/reservations/table/{tableId}` | — | Konkreetse laua eelseisvad reserveeringud |
+| POST | `/api/reservations/recommend` | — | Hinnastatud lauasoovitused |
+
+#### Toidud
+
+| Meetod | Tee | Kirjeldus |
+|--------|-----|-----------|
+| GET | `/api/meals/suggest?keyword={q}` | Puhverserver TheMealDB roogade otsingule |
+
+Interaktiivsed dokumendid: **`/swagger-ui.html`**
+
 ---
 
-## Database Schema (Flyway)
+## Database Schema / Andmebaasi skeem
+
+### English
 
 | Migration | Contents |
 |-----------|----------|
@@ -299,17 +484,36 @@ Key design decisions:
 - `ends_at = starts_at + 2.5 h` stored at creation; availability queries filter `WHERE ends_at > now()`.
 - `ON DELETE CASCADE` on `reservation_tables.table_id` — deleting a table cleans up its junction rows.
 
+### Eesti keeles
+
+| Migratsioon | Sisu |
+|-------------|------|
+| `V1__init_schema.sql` | Täielik skeem: `admins`, `floor_plans`, `areas`, `restaurant_tables`, `reservations`, `reservation_tables` ristmik, FK kaskaadid, algne põhiplaani rida |
+| `V2__seed_admin.sql` | Vaikimisi adminikonto (`admin` / `admin123`, bcrypt) |
+| `V3__seed_demo_data.sql` | 3 ala, 15 lauda, 10 ajavõrdelist reserveeringut |
+
+Peamised disainiotsused:
+
+- Üksik `floor_plans` rida (`id = 1`); `PUT /api/layout` asendab kõik alad/lauad aatomselt.
+- Ühendatud lauad: talletatakse uue kirjena (`is_fused = true`); koostislaudade `parent_fused_id` seatakse ja need peidetakse renderingutest.
+- Mitme-laua reserveeringud läbi `reservation_tables` ristmiku (üks broneering võib hõlmata mitut lauda).
+- Topeltbroneerimine ennetatakse rakenduse tasandil `ReservationRepository.existsOverlap()` kaudu.
+- `ends_at = starts_at + 2,5 h` salvestatakse loomisel; saadavuspäringud filtreerivad `WHERE ends_at > now()`.
+- `ON DELETE CASCADE` `reservation_tables.table_id`-l — laua kustutamine puhastab selle ristmikuread.
+
 ---
 
-## Development Notes
+## Development Notes / Arenduslikud märkmed
 
-### Grid System
+### English
+
+#### Grid System
 
 - Cell size: **60 × 60 px**
 - Row/column indices are **1-based**
 - Areas use absolute pixel positioning; tables use CSS `gridColumn: col / span w` + `gridRow: row / span h`
 
-### Frontend Stores
+#### Frontend Stores
 
 | Store | Purpose |
 |-------|---------|
@@ -317,76 +521,32 @@ Key design decisions:
 | `filterStore` | Filter bar state (date, time, party size, area) |
 | `authStore` | JWT token + admin flag, persisted to `localStorage` |
 
-### Running Tests
+#### Running Tests
 
 ```bash
 cd frontend && npm test            # vitest run (single pass)
 cd frontend && npm run test:watch  # vitest watch mode
 ```
 
----
+### Eesti keeles
 
-## Eesti keeles
+#### Ruudustikusüsteem
 
-Restorano on restorani lauabroneeringute haldamise veebirakendus. Töötajad näevad restorani põhiplaani ruudustiku vaates, filtreerivad laudu kuupäeva, kellaaja, seltskonna suuruse ja ala järgi, broneerivad laudu arukate soovitustega ning vaatavad roa ettepanekuid. Administraatorid konfigureerivad restorani põhiplaani paigutust lohistamise-ja-joonistamise lõuendil.
+- Lahtri suurus: **60 × 60 px**
+- Rea-/veeruindeksid on **1-põhised**
+- Alad kasutavad absoluutset pikslipõhist paigutust; lauad kasutavad CSS-i `gridColumn: col / span w` + `gridRow: row / span h`
 
-### Käivitamine
+#### Frontendi salvestused
 
-**1. Käivita taustsüsteem ja andmebaas:**
+| Salvestus | Eesmärk |
+|-----------|---------|
+| `layoutStore` | Põhiplaani olek, reserveeringute nimekiri, arvutatud laudade olekud |
+| `filterStore` | Filtribaari olek (kuupäev, kellaaeg, seltskonna suurus, ala) |
+| `authStore` | JWT token + admini lipp, salvestatakse `localStorage`'i |
 
-```bash
-docker compose up -d --build
-```
-
-See käivitab PostgreSQL 16 ja Spring Boot API aadressil `http://localhost:8080`. Flyway migratsioonid käitatakse automaatselt ja seemnendatakse:
-- andmebaasi skeem
-- vaikimisi **administraatori konto** (`admin` / `admin123`)
-- demo põhiplaan 3 alaga, 15 lauaga ja 10 reserveeringuga praeguse aja ümber
-
-Backendi live-reload arenduse ajal:
-```bash
-docker compose watch
-```
-
-**2. Käivita kasutajaliides:**
+#### Testide käivitamine
 
 ```bash
-cd frontend
-npm install
-npm run dev
+cd frontend && npm test            # vitest run (üks läbiminek)
+cd frontend && npm run test:watch  # vitest jälgimisrežiim
 ```
-
-Ava `http://localhost:5173`.
-
-**3. Logi sisse administraatorina:**
-
-| Väli | Väärtus |
-|------|---------|
-| Kasutajanimi | `admin` |
-| Parool | `admin123` |
-
-See avab **Paigutuse kujundaja** aadressil `/admin`.
-
-### Funktsioonid
-
-**Töötajatele (sisselogimist pole vaja):**
-
-- **Põhiplaani vaade** — kõik lauad, värvikoodiga saadavuse järgi
-- **Filtreerimine** — filtreeri kuupäeva/kellaaja, seltskonna suuruse ja ala järgi
-- **Hõljutuse kokkuvõte** — vaata iga laua eelseisvaid reserveeringuid
-- **Lauainfo paneel** — klõpsa laual, et näha kõiki eelseisvaid broneeringuid, neid kohapeal muuta/kustutada või uut broneeringut lisada
-- **Broneerimise vorm** — broneeri laud nupu "Uus reserveering" kaudu
-- **Laua soovitused** — sisesta seltskonna suurus + eelistatud ala kuni 5 hinnatud ettepaneku saamiseks
-- **Roa soovitused** — otsi TheMealDB kaudu roogade ideid broneerimise käigus
-
-**Administraatoritele (sisselogimine vajalik):**
-
-- **Paigutuse kujundaja** — joonista alad ja lauad ruudustiku lõuendil
-  - Joonista nimega, värvitud alad (minimaalselt 2×2 lahtrit, kattumist ei lubata)
-  - Muuda alade suurust lohistades servi või nurki
-  - Joonista lauad lohistades; lauad piiratakse algusalaga
-  - Muuda laua silti ja mahtu kohapealt, kui valitud
-  - Ühenda mitu lauda üheks (kohene, ilma modaalita)
-  - Eralda ühendatud lauad tagasi algseteks
-  - Liiguta laudu lohistades
-  - Kustutamine/ühendamine/eralda on blokeeritud (409), kui mõjutatud laudadel on tulevasi reserveeringuid

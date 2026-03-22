@@ -5,6 +5,7 @@ import FloorPlan from '../components/floorplan/FloorPlan';
 import FilterBar from '../components/filters/FilterBar';
 import TableLegend from '../components/floorplan/TableLegend';
 import BookingDrawer from '../components/reservation/BookingDrawer';
+import TableDrawer from '../components/reservation/TableDrawer';
 import { useLayoutStore } from '../store/layoutStore';
 import * as layoutApi from '../api/layoutApi';
 import * as reservationApi from '../api/reservationApi';
@@ -13,6 +14,8 @@ export default function MainPage() {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [clickedTableId, setClickedTableId] = useState<number | undefined>();
+  const [tableDrawerOpen, setTableDrawerOpen] = useState(false);
+  const [clickedTable, setClickedTable] = useState<Table | undefined>();
 
   useEffect(() => {
     const { setFloorPlan, setReservations } = useLayoutStore.getState();
@@ -27,8 +30,8 @@ export default function MainPage() {
   }, []);
 
   const handleTableClick = (table: Table) => {
-    setClickedTableId(table.id);
-    setDrawerOpen(true);
+    setClickedTable(table);
+    setTableDrawerOpen(true);
   };
 
   return (
@@ -48,6 +51,12 @@ export default function MainPage() {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         initialTableId={clickedTableId}
+      />
+
+      <TableDrawer
+        open={tableDrawerOpen}
+        onClose={() => setTableDrawerOpen(false)}
+        table={clickedTable}
       />
     </div>
   );

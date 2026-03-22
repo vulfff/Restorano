@@ -28,6 +28,7 @@
   "booking.selectTableHint": "Kinnitamiseks vali eelnevalt laud",
   "booking.confirmedTitle": "Reserveering kinnitatud!",
   "booking.confirmedSubtitle": "{{guestName}} · {{partySize}} külalist",
+  "booking.at": "kell",
   "booking.errorConflict": "See laud on sellel ajal juba broneeritud. Palun valige teine.",
   "booking.errorGeneric": "Broneerimine ebaõnnestus. Palun proovige uuesti.",
 
@@ -48,6 +49,8 @@
   "recommend.title": "Soovitatud lauad",
   "recommend.fit": "Sobivus",
   "recommend.area": "Ala",
+  "recommend.noArea": "Pole ala",
+  "recommend.unknownArea": "Teadmata",
 
   "meals.title": "Roa soovitused (valikuline)",
   "meals.placeholder": "nt pasta, kana...",

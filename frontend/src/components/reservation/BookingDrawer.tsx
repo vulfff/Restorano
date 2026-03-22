@@ -124,7 +124,7 @@ export default function BookingDrawer({ open, onClose, initialTableId }: Props) 
               <h3 className="font-display text-2xl font-semibold text-[#0f4c3a] mb-2">{t('booking.confirmedTitle')}</h3>
               <p className="text-[#78716c]">
                 {t('booking.confirmedSubtitle', { guestName, partySize })}<br />
-                {bookDate} at {bookTime}
+                {bookDate} {t('booking.at')} {bookTime}
               </p>
               <button
                 onClick={handleClose}

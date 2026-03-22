@@ -13,8 +13,8 @@ export default function RecommendedTables({ scored, onSelect, selectedTableId }:
   const { t } = useTranslation();
 
   const getAreaName = (areaId: number | null) => {
-    if (!areaId) return 'No area';
-    return floorPlan.areas.find((a) => a.id === areaId)?.name ?? 'Unknown';
+    if (!areaId) return t('recommend.noArea');
+    return floorPlan.areas.find((a) => a.id === areaId)?.name ?? t('recommend.unknownArea');
   };
 
   if (scored.length === 0) return null;

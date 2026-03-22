@@ -109,7 +109,7 @@ Restorani lauabroneeringute haldamise veebirakendus. Töötajad näevad restoran
 | State | Zustand v5, TanStack Query v5 |
 | HTTP | Axios, Vite proxy `/api → :8080` |
 | i18n | i18next — English (`en`) and Estonian (`et`); choice persisted to `localStorage` |
-| Backend | Java 21, Spring Boot 3.x |
+| Backend | Java 25, Spring Boot 3.5.12 |
 | Auth | JWT (jjwt 0.12.x), Spring Security |
 | Database | PostgreSQL 16, Flyway migrations |
 | API Docs | SpringDoc OpenAPI (`/swagger-ui.html`) |
@@ -123,7 +123,7 @@ Restorani lauabroneeringute haldamise veebirakendus. Töötajad näevad restoran
 | Olek | Zustand v5, TanStack Query v5 |
 | HTTP | Axios, Vite puhverserver `/api → :8080` |
 | Tõlkimine (i18n) | i18next — inglise (`en`) ja eesti (`et`); valik salvestatakse `localStorage`'i |
-| Backend | Java 21, Spring Boot 3.x |
+| Backend | Java 25, Spring Boot 3.5.12 |
 | Autentimine | JWT (jjwt 0.12.x), Spring Security |
 | Andmebaas | PostgreSQL 16, Flyway migratsioonid |
 | API dokumentatsioon | SpringDoc OpenAPI (`/swagger-ui.html`) |
